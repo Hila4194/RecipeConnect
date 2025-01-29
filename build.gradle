@@ -1,0 +1,24 @@
+// Root-level build.gradle file (Project-level)
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2'  // Make sure this matches the version you're using
+        classpath 'com.google.gms:google-services:4.3.14'  // Required for Firebase
+        implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
