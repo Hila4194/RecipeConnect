@@ -28,6 +28,7 @@ class SignupActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
+        val backButton: ImageView = findViewById(R.id.backButton)
         val firstNameEditText: EditText = findViewById(R.id.firstNameEditText)
         val lastNameEditText: EditText = findViewById(R.id.lastNameEditText)
         val dobEditText: EditText = findViewById(R.id.dobEditText)
@@ -37,6 +38,11 @@ class SignupActivity : AppCompatActivity() {
         val profileImageView: ImageView = findViewById(R.id.profileImageView)
         val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
         val createAccountButton: Button = findViewById(R.id.createAccountButton)
+
+        // Back Button Functionality
+        backButton.setOnClickListener {
+            onBackPressed() // Go back to LoginActivity
+        }
 
         // Select profile picture
         changeProfileImageButton.setOnClickListener {

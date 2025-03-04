@@ -2,6 +2,7 @@ package com.example.recipeconnect.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.recipeconnect.R
 import com.google.firebase.auth.FirebaseAuth
@@ -11,18 +12,23 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
 
         auth = FirebaseAuth.getInstance()
 
-        // Check if a user is already logged in
+        // Check if the user is already logged in
         if (auth.currentUser != null) {
+            // If user is logged in, go directly to the main recipes page
             startActivity(Intent(this, RecipesHomeActivity::class.java))
-            finish() // Close HomeActivity so the user can't go back to it
+            finish() // Close HomeActivity so user can't go back
         } else {
-            // Otherwise, go to the login screen
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+            // If not logged in, show the landing page
+            setContentView(R.layout.activity_home)
+
+            val startButton = findViewById<Button>(R.id.startButton)
+            startButton.setOnClickListener {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish() // Close HomeActivity
+            }
         }
     }
 }

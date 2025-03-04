@@ -10,6 +10,16 @@
         android:orientation="vertical"
         android:gravity="center">
 
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:contentDescription="Back"
+            android:layout_gravity="start"
+            android:layout_marginBottom="10dp"/>
+
         <!-- Profile Image -->
         <ImageView
             android:id="@+id/profileImageView"

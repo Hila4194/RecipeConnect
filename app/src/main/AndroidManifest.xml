@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required for Firebase Authentication and Firestore -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -16,7 +17,7 @@
         android:theme="@style/Theme.RecipeConnect"
         tools:targetApi="31">
 
-        <!-- Landing Screen -->
+        <!-- Landing Screen (First screen when app opens) -->
         <activity
             android:name=".activities.HomeActivity"
             android:exported="true">
@@ -32,8 +33,11 @@
         <!-- Signup Screen -->
         <activity android:name=".activities.SignupActivity" android:exported="true"/>
 
-        <!-- Recipes Home Screen -->
+        <!-- Main Recipes Page (Auto-redirects if user is logged in) -->
         <activity android:name=".activities.RecipesHomeActivity" android:exported="true"/>
+
+        <!-- User Profile Screen -->
+        <activity android:name=".activities.UserProfileActivity" android:exported="true"/>
 
     </application>
 

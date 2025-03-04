@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.recipeconnect.activities.HomeActivity
 import com.example.recipeconnect.activities.LoginActivity
+
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {

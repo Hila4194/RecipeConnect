@@ -27,10 +27,10 @@ class RecipesHomeActivity : AppCompatActivity() {
         // Fetch and display the username
         loadUsername()
 
-        // Logout functionality
+        // Logout button
         logoutButton.setOnClickListener {
             auth.signOut() // Sign out from Firebase
-            startActivity(Intent(this, LoginActivity::class.java)) // Redirect to login screen
+            startActivity(Intent(this, HomeActivity::class.java)) // Redirect to landing page
             finish() // Close RecipesHomeActivity
         }
     }
