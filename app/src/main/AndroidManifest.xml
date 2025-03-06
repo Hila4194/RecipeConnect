@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Required for Firebase Authentication and Firestore -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -28,17 +27,49 @@
         </activity>
 
         <!-- Login Screen -->
-        <activity android:name=".activities.LoginActivity" android:exported="true"/>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:exported="true" />
 
         <!-- Signup Screen -->
-        <activity android:name=".activities.SignupActivity" android:exported="true"/>
+        <activity
+            android:name=".activities.SignupActivity"
+            android:exported="true" />
 
         <!-- Main Recipes Page (Auto-redirects if user is logged in) -->
-        <activity android:name=".activities.RecipesHomeActivity" android:exported="true"/>
+        <activity
+            android:name=".activities.RecipesHomeActivity"
+            android:exported="true" />
 
         <!-- User Profile Screen -->
-        <activity android:name=".activities.UserProfileActivity" android:exported="true"/>
+        <activity
+            android:name=".activities.UserProfileActivity"
+            android:exported="true" />
 
+        <!-- Add Recipe Screen -->
+        <activity
+            android:name=".activities.AddRecipeActivity"
+            android:exported="false" />
+
+        <!-- Edit Profile Screen -->
+        <activity
+            android:name=".activities.EditProfileActivity"
+            android:exported="false" />
+
+        <!-- Favorite Recipes Screen -->
+        <activity
+            android:name=".activities.FavoriteRecipesActivity"
+            android:exported="false" />
+
+        <!-- My Recipes Screen -->
+        <activity
+            android:name=".activities.MyRecipesActivity"
+            android:exported="false" />
+
+        <!-- Recipe Detail Screen -->
+        <activity
+            android:name=".activities.RecipeDetailActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
