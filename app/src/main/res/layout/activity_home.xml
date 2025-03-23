@@ -25,8 +25,7 @@
         android:id="@+id/descriptionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="RecipeConnect is where food lovers unite to create, share, and discover recipes.
-                Join our vibrant community to connect, inspire, and turn every dish into a story!"
+        android:text="RecipeConnect is where food lovers unite to create, share, and discover recipes."
         android:textSize="16sp"
         android:textColor="@android:color/black"
         android:gravity="center"
@@ -39,19 +38,32 @@
         android:layout_marginTop="20dp"/>
 
     <!-- Start Button -->
+    <TextView
+        android:id="@+id/description2TextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:lineSpacingExtra="5dp"
+        android:padding="20dp"
+        android:text="Join our vibrant community to connect, inspire, and turn every dish into a story!"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/startButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoImageView"
+        app:layout_constraintVertical_bias="0.71" />
+
     <Button
         android:id="@+id/startButton"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
+        style="@style/AppButtonStyle"
+        android:layout_marginTop="76dp"
         android:text="Start Here!"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@color/purple_700"
-        app:layout_constraintTop_toBottomOf="@id/descriptionTextView"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="30dp"/>
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/descriptionTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
