@@ -6,7 +6,6 @@ import android.util.Patterns
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.recipeconnect.R
-import com.example.recipeconnect.activities.RecipesHomeActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -15,8 +14,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: ImageView
     private lateinit var signupButton: Button
-    private lateinit var forgotPasswordTextView: TextView
-    private lateinit var rememberMeCheckBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +26,6 @@ class LoginActivity : AppCompatActivity() {
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
         signupButton = findViewById(R.id.signupButton)
-        forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView)
-        rememberMeCheckBox = findViewById(R.id.rememberMeCheckBox)
 
         // Handle Login Button Click
         loginButton.setOnClickListener {
@@ -52,22 +47,6 @@ class LoginActivity : AppCompatActivity() {
         // Handle Sign-up Button Click
         signupButton.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
-        }
-
-        // Handle Forgot Password Click
-        forgotPasswordTextView.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Enter your registered email", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            auth.sendPasswordResetEmail(email)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Reset link sent to your email", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
-                }
         }
     }
 

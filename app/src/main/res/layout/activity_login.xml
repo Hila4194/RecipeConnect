@@ -23,86 +23,91 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Email Field -->
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:hint="Email Address"
+    <TextView
+        android:id="@+id/emailLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email Address:"
         android:textSize="16sp"
-        android:backgroundTint="@color/white"
-        android:inputType="textEmailAddress"
-        android:padding="10dp"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/loginButton"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:hint="Enter your email"
+        android:padding="10dp"
+        android:background="@drawable/custom_edittext_bg"
+        app:layout_constraintTop_toBottomOf="@id/emailLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="4dp"/>
 
     <!-- Password Field -->
+    <TextView
+        android:id="@+id/passwordLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password:"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/emailEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
     <EditText
         android:id="@+id/passwordEditText"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:hint="Password"
-        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:inputType="textPassword"
-        android:backgroundTint="@color/white"
+        android:hint="Enter your password"
         android:padding="10dp"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText"
+        android:background="@drawable/custom_edittext_bg"
+        app:layout_constraintTop_toBottomOf="@id/passwordLabel"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/loginButton"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="4dp"/>
 
-    <!-- Login Button (Arrow) -->
+    <!-- Login Button (Updated Icon) -->
     <ImageView
         android:id="@+id/loginButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@android:drawable/ic_media_next"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/login_icon"
         android:contentDescription="Login"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText"
-        app:layout_constraintStart_toEndOf="@id/passwordEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="10dp"/>
-
-    <!-- Forgot Password Text -->
-    <TextView
-        android:id="@+id/forgotPasswordTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Forgot password?"
-        android:textSize="14sp"
-        android:textColor="@android:color/black"
         app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="20dp"/>
 
-    <!-- Remember Me Checkbox -->
-    <CheckBox
-        android:id="@+id/rememberMeCheckBox"
-        android:layout_width="wrap_content"
+    <!-- Sign-up Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Remember Me"
-        android:textSize="14sp"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@id/forgotPasswordTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="10dp"/>
-
-    <!-- Sign-up Button -->
-    <Button
-        android:id="@+id/signupButton"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Sign-up"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:backgroundTint="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/rememberMeCheckBox"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Not registered for our app yet?"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/signupButton"
+            style="@style/AppButtonStyle"
+            android:text="Sign-up Here!"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
