@@ -7,11 +7,16 @@ import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.bumptech.glide.Glide
+import androidx.lifecycle.lifecycleScope
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.User
+import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
+import com.example.recipeconnect.utils.CircleTransform
+import kotlinx.coroutines.launch
+import java.io.File
 
 class UserProfileActivity : AppCompatActivity() {
     private lateinit var profileImageView: ImageView
@@ -31,7 +36,6 @@ class UserProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
 
-        // Toolbar setup
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -63,6 +67,8 @@ class UserProfileActivity : AppCompatActivity() {
 
     private fun loadUserProfile() {
         val uid = auth.currentUser?.uid ?: return
+
+        // Load basic user data from Firestore
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -72,15 +78,28 @@ class UserProfileActivity : AppCompatActivity() {
                     dobTextView.setText(user?.dob ?: "N/A")
                     emailTextView.setText(user?.email ?: "N/A")
                     bioTextView.setText(user?.bio ?: "No bio available")
-                    Glide.with(this).load(user?.profileImageUrl).into(profileImageView)
                 }
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
             }
+
+        // Load profile image from Room
+        lifecycleScope.launch {
+            val db = RecipeDatabase.getDatabase(applicationContext)
+            val userImage = db.userImageDao().get(uid)
+            userImage?.let {
+                val imageFile = File(it.imagePath)
+                if (imageFile.exists()) {
+                    Picasso.get()
+                        .load(imageFile)
+                        .transform(CircleTransform())
+                        .into(profileImageView)
+                }
+            }
+        }
     }
 
-    // Inflate logout menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.recipe_home_menu, menu)
         return true
@@ -101,5 +120,10 @@ class UserProfileActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadUserProfile() // Reload fresh data every time the screen resumes
     }
 }

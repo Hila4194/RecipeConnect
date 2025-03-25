@@ -5,23 +5,28 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipeconnect.R
 import com.example.recipeconnect.adapters.RecipeAdapter
 import com.example.recipeconnect.models.Recipe
+import com.example.recipeconnect.viewmodels.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class RecipesHomeActivity : AppCompatActivity() {
+
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var difficultySpinner: Spinner
     private lateinit var categorySpinner: Spinner
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private val recipeList = mutableListOf<Recipe>()
     private lateinit var adapter: RecipeAdapter
+
+    private val auth = FirebaseAuth.getInstance()
+    private val fullRecipeList = mutableListOf<Recipe>()
+
+    private val recipeViewModel: RecipeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,29 +39,32 @@ class RecipesHomeActivity : AppCompatActivity() {
         // Initialize RecyclerView
         recipesRecyclerView = findViewById(R.id.recipesRecyclerView)
         recipesRecyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Initialize Adapter with an empty list (it will be updated later)
-        adapter = RecipeAdapter(recipeList) { recipe ->
+        adapter = RecipeAdapter(emptyList()) { recipe ->
             val intent = Intent(this, RecipeDetailActivity::class.java)
             intent.putExtra("RECIPE_ID", recipe.id)
             startActivity(intent)
         }
         recipesRecyclerView.adapter = adapter
 
-        // Initialize Filter Spinners
+        // Initialize Spinners
         difficultySpinner = findViewById(R.id.difficultyFilterSpinner)
         categorySpinner = findViewById(R.id.categoryFilterSpinner)
 
         setupSpinners()
 
-        // Load all recipes initially
-        loadRecipes()
+        // Observe recipes from ViewModel (Room DB)
+        recipeViewModel.allRecipes.observe(this, Observer { recipes ->
+            fullRecipeList.clear()
+            fullRecipeList.addAll(recipes)
+            filterRecipes()
+        })
 
         // Set filter listeners
         difficultySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 filterRecipes()
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -64,11 +72,11 @@ class RecipesHomeActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 filterRecipes()
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
-    // Initialize spinners with the required values
     private fun setupSpinners() {
         val difficultyOptions = arrayOf("All", "Easy", "Medium", "Hard")
         val categoryOptions = arrayOf("All", "Dairy", "Meat", "Chicken", "Desserts", "Asian")
@@ -77,55 +85,31 @@ class RecipesHomeActivity : AppCompatActivity() {
         categorySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryOptions)
     }
 
-    // Load recipes from Firestore
-    private fun loadRecipes() {
-        firestore.collection("recipes").get()
-            .addOnSuccessListener { documents ->
-                recipeList.clear()
-                for (document in documents) {
-                    val recipe = document.toObject(Recipe::class.java).apply { id = document.id }
-                    recipeList.add(recipe)
-                }
-                filterRecipes() // Apply filtering immediately
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to load recipes", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // Filter recipes based on selected difficulty and category
     private fun filterRecipes() {
         val selectedDifficulty = difficultySpinner.selectedItem.toString()
         val selectedCategory = categorySpinner.selectedItem.toString()
 
-        val filteredList = recipeList.filter { recipe ->
+        val filteredList = fullRecipeList.filter { recipe ->
             val matchesDifficulty = selectedDifficulty == "All" || recipe.difficulty == selectedDifficulty
             val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
             matchesDifficulty && matchesCategory
         }
 
-        // Update the adapter with filtered recipes
-        adapter = RecipeAdapter(filteredList) { recipe ->
-            val intent = Intent(this, RecipeDetailActivity::class.java)
-            intent.putExtra("RECIPE_ID", recipe.id)
-            startActivity(intent)
-        }
-        recipesRecyclerView.adapter = adapter
+        adapter.updateRecipes(filteredList)
     }
 
-    // Inflate the options menu (Profile and Logout)
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.recipe_home_menu, menu)
         return true
     }
 
-    // Handle menu item clicks (Profile and Logout)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_profile -> {
                 startActivity(Intent(this, UserProfileActivity::class.java))
                 true
             }
+
             R.id.menu_logout -> {
                 auth.signOut()
                 val intent = Intent(this, LoginActivity::class.java)
@@ -133,6 +117,7 @@ class RecipesHomeActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

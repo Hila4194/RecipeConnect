@@ -10,8 +10,10 @@ import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
 
-class RecipeAdapter(private val recipes: List<Recipe>, private val onItemClick: (Recipe) -> Unit) :
-    RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
+class RecipeAdapter(
+    private var recipes: List<Recipe>, // Mutable list
+    private val onItemClick: (Recipe) -> Unit
+) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_recipe, parent, false)
@@ -25,6 +27,12 @@ class RecipeAdapter(private val recipes: List<Recipe>, private val onItemClick: 
 
     override fun getItemCount() = recipes.size
 
+    // 🔄 Function to update the list dynamically (used in LiveData observer)
+    fun updateRecipes(newRecipes: List<Recipe>) {
+        recipes = newRecipes
+        notifyDataSetChanged()
+    }
+
     inner class RecipeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleTextView: TextView = view.findViewById(R.id.recipeTitleTextView)
         private val descriptionTextView: TextView = view.findViewById(R.id.recipeDescriptionTextView)
@@ -35,9 +43,9 @@ class RecipeAdapter(private val recipes: List<Recipe>, private val onItemClick: 
             descriptionTextView.text = recipe.ingredients.joinToString(", ")
             Glide.with(itemView.context)
                 .load(recipe.imageUrl)
+                .placeholder(R.drawable.ic_launcher_foreground)
                 .into(recipeImageView)
 
-            // Handle item click
             itemView.setOnClickListener { onItemClick(recipe) }
         }
     }
