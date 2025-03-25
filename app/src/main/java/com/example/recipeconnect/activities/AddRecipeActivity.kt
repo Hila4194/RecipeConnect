@@ -6,16 +6,17 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
+import com.example.recipeconnect.viewmodels.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
+import java.util.*
 
 class AddRecipeActivity : AppCompatActivity() {
+
     private lateinit var recipeImageView: ImageView
     private lateinit var recipeTitleEditText: EditText
     private lateinit var prepTimeEditText: EditText
@@ -27,14 +28,12 @@ class AddRecipeActivity : AppCompatActivity() {
     private var imageUri: Uri? = null
 
     private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+    private val recipeViewModel: RecipeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_recipe)
 
-        // Setup custom centered toolbar
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
@@ -71,7 +70,7 @@ class AddRecipeActivity : AppCompatActivity() {
         val difficulty = difficultySpinner.selectedItem.toString()
         val category = categorySpinner.selectedItem.toString()
         val ingredientsText = ingredientsEditText.text.toString().trim()
-        val ingredients = ingredientsText.split(",").map { it.trim() } // Split input by commas and create a list
+        val ingredients = ingredientsText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val steps = stepsEditText.text.toString().trim()
         val userId = auth.currentUser?.uid ?: return
 
@@ -80,72 +79,28 @@ class AddRecipeActivity : AppCompatActivity() {
             return
         }
 
-        // Debugging: Check if all inputs are valid
-        Toast.makeText(this, "Saving recipe: $title", Toast.LENGTH_SHORT).show()
-
-        if (imageUri != null) {
-            uploadImageAndSaveRecipe(userId, title, prepTime, difficulty, category, ingredients, steps)
-        } else {
-            saveRecipeToFirestore(userId, title, prepTime, difficulty, category, ingredients, steps, null)
-        }
-    }
-
-    private fun uploadImageAndSaveRecipe(
-        userId: String,
-        title: String,
-        prepTime: String,
-        difficulty: String,
-        category: String,
-        ingredients: List<String>,
-        steps: String
-    ) {
-        val imageRef = storage.reference.child("recipe_images/${UUID.randomUUID()}.jpg")
-
-        imageRef.putFile(imageUri!!)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    saveRecipeToFirestore(userId, title, prepTime, difficulty, category, ingredients, steps, uri.toString())
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun saveRecipeToFirestore(
-        userId: String,
-        title: String,
-        prepTime: String,
-        difficulty: String,
-        category: String,
-        ingredients: List<String>,
-        steps: String,
-        imageUrl: String?
-    ) {
         val recipe = Recipe(
+            id = UUID.randomUUID().toString(),
             title = title,
             prepTime = prepTime,
             difficulty = difficulty,
             category = category,
             ingredients = ingredients,
             steps = steps,
-            imageUrl = imageUrl ?: "",
+            imageUrl = imageUri?.toString() ?: "",
             userId = userId
         )
 
-        firestore.collection("recipes").add(recipe)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Recipe added successfully!", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to save recipe", Toast.LENGTH_SHORT).show()
-            }
+        recipeViewModel.insert(recipe)
+
+        Toast.makeText(this, "Recipe saved locally!", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun selectImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "image/*"
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(intent, 100)
     }
 
@@ -156,6 +111,7 @@ class AddRecipeActivity : AppCompatActivity() {
             Glide.with(this).load(imageUri).into(recipeImageView)
         }
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

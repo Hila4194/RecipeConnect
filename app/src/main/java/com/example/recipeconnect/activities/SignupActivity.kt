@@ -2,22 +2,27 @@ package com.example.recipeconnect.activities
 
 import android.app.DatePickerDialog
 import android.app.Activity
-import com.example.recipeconnect.models.User
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.recipeconnect.R
+import com.example.recipeconnect.models.User
+import com.example.recipeconnect.models.dao.UserImage
+import com.example.recipeconnect.models.dao.RecipeDatabase
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.example.recipeconnect.R
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class SignupActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var storage: FirebaseStorage
     private var imageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +31,6 @@ class SignupActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
-        storage = FirebaseStorage.getInstance()
 
         val backButton: ImageView = findViewById(R.id.backButton)
         val firstNameEditText: EditText = findViewById(R.id.firstNameEditText)
@@ -35,23 +39,20 @@ class SignupActivity : AppCompatActivity() {
         val emailEditText: EditText = findViewById(R.id.emailEditText)
         val passwordEditText: EditText = findViewById(R.id.passwordEditText)
         val bioEditText: EditText = findViewById(R.id.bioEditText)
-        val profileImageView: ImageView = findViewById(R.id.profileImageView)
         val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
         val createAccountButton: Button = findViewById(R.id.createAccountButton)
 
-        // Back Button Functionality
         backButton.setOnClickListener {
-            onBackPressed() // Go back to LoginActivity
+            onBackPressed()
         }
 
-        // Select profile picture
         changeProfileImageButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.type = "image/*"
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
             startActivityForResult(intent, 100)
         }
 
-        // Select Date of Birth
         dobEditText.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -82,11 +83,7 @@ class SignupActivity : AppCompatActivity() {
                 .addOnSuccessListener { result ->
                     val uid = result.user?.uid
                     if (uid != null) {
-                        if (imageUri != null) {
-                            uploadProfileImage(uid, firstName, lastName, dob, email, bio)
-                        } else {
-                            saveUserToFirestore(uid, firstName, lastName, dob, email, bio, null)
-                        }
+                        saveProfileImageLocallyAndContinue(uid, firstName, lastName, dob, email, bio)
                     }
                 }
                 .addOnFailureListener {
@@ -95,20 +92,37 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadProfileImage(uid: String, firstName: String, lastName: String, dob: String, email: String, bio: String) {
-        val storageRef = storage.reference.child("profile_pictures/$uid.jpg")
-        storageRef.putFile(imageUri!!)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    saveUserToFirestore(uid, firstName, lastName, dob, email, bio, uri.toString())
-                }
+    private fun saveProfileImageLocallyAndContinue(
+        uid: String,
+        firstName: String,
+        lastName: String,
+        dob: String,
+        email: String,
+        bio: String
+    ) {
+        if (imageUri != null) {
+            val imagePath = saveImageToInternalStorage(this, imageUri!!, "profile_$uid")
+            val userImage = UserImage(uid = uid, imagePath = imagePath)
+
+            lifecycleScope.launch {
+                val db = RecipeDatabase.getDatabase(applicationContext)
+                db.userImageDao().insert(userImage)
+                saveUserToFirestore(uid, firstName, lastName, dob, email, bio, null)
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show()
-            }
+        } else {
+            saveUserToFirestore(uid, firstName, lastName, dob, email, bio, null)
+        }
     }
 
-    private fun saveUserToFirestore(uid: String, firstName: String, lastName: String, dob: String, email: String, bio: String, imageUrl: String?) {
+    private fun saveUserToFirestore(
+        uid: String,
+        firstName: String,
+        lastName: String,
+        dob: String,
+        email: String,
+        bio: String,
+        imageUrl: String?
+    ) {
         val user = User(
             uid = uid,
             firstName = firstName,
@@ -129,5 +143,24 @@ class SignupActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error saving user", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
+            imageUri = data?.data
+            val profileImageView = findViewById<ImageView>(R.id.profileImageView)
+            Glide.with(this).load(imageUri).into(profileImageView)
+        }
+    }
+
+    private fun saveImageToInternalStorage(context: Activity, uri: Uri, fileName: String): String {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.filesDir, "$fileName.jpg")
+        val outputStream = FileOutputStream(file)
+        inputStream?.copyTo(outputStream)
+        outputStream.close()
+        inputStream?.close()
+        return file.absolutePath
     }
 }

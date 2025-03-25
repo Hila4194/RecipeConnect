@@ -9,30 +9,34 @@ import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.bumptech.glide.Glide
+import androidx.lifecycle.lifecycleScope
 import com.example.recipeconnect.R
+import com.example.recipeconnect.models.dao.RecipeDatabase
+import com.example.recipeconnect.models.dao.UserImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import com.example.recipeconnect.utils.CircleTransform
+import com.google.firebase.firestore.SetOptions
 
 class EditProfileActivity : AppCompatActivity() {
     private lateinit var profileImageView: ImageView
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
-    private lateinit var emailEditText: EditText
     private lateinit var bioEditText: EditText
     private lateinit var saveButton: Button
     private var imageUri: Uri? = null
 
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        // Setup toolbar with back button
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -41,7 +45,6 @@ class EditProfileActivity : AppCompatActivity() {
         profileImageView = findViewById(R.id.editProfileImageView)
         firstNameEditText = findViewById(R.id.editFirstName)
         lastNameEditText = findViewById(R.id.editLastName)
-        emailEditText = findViewById(R.id.editEmail)
         bioEditText = findViewById(R.id.editBio)
         saveButton = findViewById(R.id.saveProfileButton)
         val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
@@ -57,7 +60,103 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    // 🔁 Handle toolbar menu actions (back + logout)
+    private fun loadUserProfile() {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Load text details from Firestore
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    firstNameEditText.setText(document.getString("firstName") ?: "")
+                    lastNameEditText.setText(document.getString("lastName") ?: "")
+                    bioEditText.setText(document.getString("bio") ?: "")
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
+            }
+
+        // Load image from Room
+        lifecycleScope.launch {
+            val db = RecipeDatabase.getDatabase(applicationContext)
+            val userImage = db.userImageDao().get(uid)
+            userImage?.let {
+                val file = File(it.imagePath)
+                if (file.exists()) {
+                    Picasso.get()
+                        .load(file)
+                        .transform(CircleTransform())
+                        .into(profileImageView)
+                }
+            }
+        }
+    }
+
+    private fun selectImageFromGallery() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "image/*"
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(intent, 100)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
+            imageUri = data?.data
+            profileImageView.setImageURI(imageUri)
+        }
+    }
+
+    private fun saveUserProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        val firstName = firstNameEditText.text.toString().trim()
+        val lastName = lastNameEditText.text.toString().trim()
+        val bio = bioEditText.text.toString().trim()
+
+        // Save image if updated
+        if (imageUri != null) {
+            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
+            val userImage = UserImage(uid = uid, imagePath = imagePath)
+
+            lifecycleScope.launch {
+                val db = RecipeDatabase.getDatabase(applicationContext)
+                db.userImageDao().insert(userImage)
+            }
+        }
+
+        // Update Firestore text fields
+        val userData = mapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "bio" to bio
+        )
+
+        firestore.collection("users").document(uid)
+            .set(userData, SetOptions.merge())
+            .addOnSuccessListener {
+                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error saving profile", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File(filesDir, "$fileName.jpg")
+        val outputStream = FileOutputStream(file)
+        inputStream?.copyTo(outputStream)
+        outputStream.close()
+        inputStream?.close()
+        return file.absolutePath
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -73,93 +172,5 @@ class EditProfileActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    // 🔁 Inflate the logout menu
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.recipe_home_menu, menu)
-        return true
-    }
-
-    private fun selectImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, 100)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
-            imageUri = data?.data
-            profileImageView.setImageURI(imageUri)
-        }
-    }
-
-    private fun loadUserProfile() {
-        val uid = auth.currentUser?.uid ?: return
-
-        firestore.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    firstNameEditText.setText(document.getString("firstName"))
-                    lastNameEditText.setText(document.getString("lastName"))
-                    emailEditText.setText(document.getString("email"))
-                    bioEditText.setText(document.getString("bio"))
-
-                    val profileImageUrl = document.getString("profileImageUrl")
-                    if (!profileImageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(profileImageUrl).into(profileImageView)
-                    }
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun saveUserProfile() {
-        val uid = auth.currentUser?.uid ?: return
-        val firstName = firstNameEditText.text.toString().trim()
-        val lastName = lastNameEditText.text.toString().trim()
-        val email = emailEditText.text.toString().trim()
-        val bio = bioEditText.text.toString().trim()
-
-        if (imageUri != null) {
-            uploadProfileImage(uid, firstName, lastName, email, bio)
-        } else {
-            saveUserData(uid, firstName, lastName, email, bio, null)
-        }
-    }
-
-    private fun uploadProfileImage(uid: String, firstName: String, lastName: String, email: String, bio: String) {
-        val storageRef = storage.reference.child("profile_images/$uid.jpg")
-        storageRef.putFile(imageUri!!)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    saveUserData(uid, firstName, lastName, email, bio, uri.toString())
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun saveUserData(uid: String, firstName: String, lastName: String, email: String, bio: String, imageUrl: String?) {
-        val userData = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "email" to email,
-            "bio" to bio,
-            "profileImageUrl" to (imageUrl ?: "")
-        )
-
-        firestore.collection("users").document(uid).update(userData)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error saving profile", Toast.LENGTH_SHORT).show()
-            }
     }
 }
