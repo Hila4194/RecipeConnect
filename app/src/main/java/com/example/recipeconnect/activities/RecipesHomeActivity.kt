@@ -66,14 +66,6 @@ class RecipesHomeActivity : AppCompatActivity() {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
-        // Logout Button
-        val logoutButton: Button = findViewById(R.id.logoutButton)
-        logoutButton.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-        }
     }
 
     // Initialize spinners with the required values
@@ -132,6 +124,13 @@ class RecipesHomeActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.menu_profile -> {
                 startActivity(Intent(this, UserProfileActivity::class.java))
+                true
+            }
+            R.id.menu_logout -> {
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

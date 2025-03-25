@@ -7,19 +7,34 @@
     android:padding="16dp"
     android:background="@color/light_blue">
 
-    <!-- Toolbar -->
+    <!-- Toolbar with centered title and back arrow -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/purple_700"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:title="Edit Profile"
-        app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_back_arrow_foreground"
+        app:navigationIcon="@drawable/baseline_arrow_back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Edit Profile"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <!-- Profile Picture -->
     <ImageView

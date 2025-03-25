@@ -4,8 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.google.firebase.auth.FirebaseAuth
@@ -29,6 +32,12 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
+        // Setup toolbar with back button
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         profileImageView = findViewById(R.id.editProfileImageView)
         firstNameEditText = findViewById(R.id.editFirstName)
         lastNameEditText = findViewById(R.id.editLastName)
@@ -37,18 +46,39 @@ class EditProfileActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.saveProfileButton)
         val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
 
-        // Load current user data
         loadUserProfile()
 
-        // Select new profile image
         changeProfileImageButton.setOnClickListener {
             selectImageFromGallery()
         }
 
-        // Save profile changes
         saveButton.setOnClickListener {
             saveUserProfile()
         }
+    }
+
+    // 🔁 Handle toolbar menu actions (back + logout)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            R.id.menu_logout -> {
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // 🔁 Inflate the logout menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        return true
     }
 
     private fun selectImageFromGallery() {

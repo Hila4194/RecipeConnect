@@ -2,12 +2,9 @@ package com.example.recipeconnect.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
@@ -34,13 +31,10 @@ class UserProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
 
-        // Set up the toolbar for the back button
+        // Toolbar setup
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        // Enable the up navigation (back button)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         profileImageView = findViewById(R.id.profileImageView)
         firstNameTextView = findViewById(R.id.firstNameTextView)
@@ -86,12 +80,23 @@ class UserProfileActivity : AppCompatActivity() {
             }
     }
 
-    // Handle back button click
+    // Inflate logout menu
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                // When back button is clicked, navigate back to the previous screen
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            R.id.menu_logout -> {
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

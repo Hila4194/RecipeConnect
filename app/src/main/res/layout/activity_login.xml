@@ -7,92 +7,80 @@
     android:background="@color/light_blue"
     android:padding="20dp">
 
-    <!-- Sign-in Title -->
-    <TextView
-        android:id="@+id/titleTextView"
+    <!-- Login Form Wrapper -->
+    <LinearLayout
+        android:id="@+id/loginForm"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:text="Sign-in"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:background="@color/purple_700"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Email Field -->
-    <TextView
-        android:id="@+id/emailLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email Address:"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        <!-- Sign-in Title -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Sign-in"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@color/purple_700"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
 
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:hint="Enter your email"
-        android:padding="10dp"
-        android:background="@drawable/custom_edittext_bg"
-        app:layout_constraintTop_toBottomOf="@id/emailLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="4dp"/>
+        <!-- Email Field -->
+        <TextView
+            android:id="@+id/emailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email Address:"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
 
-    <!-- Password Field -->
-    <TextView
-        android:id="@+id/passwordLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Password:"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        <EditText
+            android:id="@+id/emailEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:hint="Enter your email"
+            android:padding="10dp"
+            android:background="@drawable/custom_edittext_bg"
+            android:layout_marginBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:hint="Enter your password"
-        android:padding="10dp"
-        android:background="@drawable/custom_edittext_bg"
-        app:layout_constraintTop_toBottomOf="@id/passwordLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="4dp"/>
+        <!-- Password Field -->
+        <TextView
+            android:id="@+id/passwordLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password:"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
 
-    <!-- Login Button (Updated Icon) -->
-    <ImageView
-        android:id="@+id/loginButton"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/login_icon"
-        android:contentDescription="Login"
-        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="Enter your password"
+            android:padding="10dp"
+            android:background="@drawable/custom_edittext_bg"
+            android:layout_marginBottom="20dp"/>
 
-    <!-- Sign-up Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/loginButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp">
+        <!-- Login Button -->
+        <ImageView
+            android:id="@+id/loginButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/login_icon"
+            android:contentDescription="Login"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"/>
 
+        <!-- Sign-up Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -100,12 +88,14 @@
             android:textSize="14sp"
             android:textColor="@color/black"
             android:gravity="center"
+            android:layout_gravity="center"
             android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/signupButton"
             style="@style/AppButtonStyle"
             android:text="Sign-up Here!"
+            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
