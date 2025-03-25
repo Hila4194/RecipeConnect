@@ -16,7 +16,7 @@
         android:background="@color/purple_700"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_back_arrow_foreground"
+        app:navigationIcon="@drawable/baseline_arrow_back"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <!-- Profile Image -->
@@ -37,8 +37,10 @@
         android:id="@+id/firstNameTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="First Name"
+        android:text="First Name:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/profileImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +54,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/firstNameTitle"
         android:layout_marginBottom="5dp"/>
 
@@ -60,8 +63,10 @@
         android:id="@+id/lastNameTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Last Name"
+        android:text="Last Name:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/firstNameTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,6 +80,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/lastNameTitle"
         android:layout_marginBottom="5dp"/>
 
@@ -83,8 +89,10 @@
         android:id="@+id/dobTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date of Birth"
+        android:text="Date of Birth:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/lastNameTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -98,6 +106,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/dobTitle"
         android:layout_marginBottom="5dp"/>
 
@@ -106,8 +115,10 @@
         android:id="@+id/emailTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email"
+        android:text="Email:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/dobTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -122,6 +133,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/emailTitle"
         android:layout_marginBottom="10dp"/>
 
@@ -130,8 +142,10 @@
         android:id="@+id/passwordTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Password"
+        android:text="Password:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/emailEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -146,6 +160,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/passwordTitle"
         android:layout_marginBottom="10dp"/>
 
@@ -154,8 +169,10 @@
         android:id="@+id/bioTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bio"
+        android:text="Bio:"
+        android:textColor="@color/black"
         android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/passwordEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -169,6 +186,7 @@
         android:background="@android:color/transparent"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/bioTitle"
         android:layout_marginBottom="10dp"/>
 

@@ -7,6 +7,15 @@
         android:id="@+id/menu_profile"
         android:icon="@drawable/ic_person"
         android:title="Profile"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        app:iconTint="@android:color/white" />
+
+    <!-- Logout Button in the Toolbar -->
+    <item
+        android:id="@+id/menu_logout"
+        android:icon="@drawable/ic_logout"
+        android:title="Logout"
+        app:showAsAction="always"
+        app:iconTint="@android:color/white" />
 
 </menu>

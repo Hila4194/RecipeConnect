@@ -1,13 +1,18 @@
 package com.example.recipeconnect.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class RecipeDetailActivity : AppCompatActivity() {
@@ -18,10 +23,16 @@ class RecipeDetailActivity : AppCompatActivity() {
     private lateinit var likeButton: Button
     private lateinit var saveButton: Button
     private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_detail)
+
+        // Set toolbar
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         recipeImageView = findViewById(R.id.recipeImageView)
         recipeTitleTextView = findViewById(R.id.recipeTitleTextView)
@@ -67,5 +78,31 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private fun saveRecipe(recipeId: String) {
         Toast.makeText(this, "Saved Recipe!", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            R.id.menu_profile -> {
+                startActivity(Intent(this, UserProfileActivity::class.java))
+                true
+            }
+            R.id.menu_logout -> {
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

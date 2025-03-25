@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -32,6 +33,10 @@ class AddRecipeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_recipe)
+
+        // Setup custom centered toolbar
+        setSupportActionBar(findViewById(R.id.toolbar))
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         recipeImageView = findViewById(R.id.recipeImageView)
         recipeTitleEditText = findViewById(R.id.recipeTitleEditText)
@@ -149,6 +154,15 @@ class AddRecipeActivity : AppCompatActivity() {
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             imageUri = data?.data
             Glide.with(this).load(imageUri).into(recipeImageView)
+        }
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }
