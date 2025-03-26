@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Required for Firebase Authentication and Firestore -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -36,7 +37,7 @@
             android:name=".activities.SignupActivity"
             android:exported="true" />
 
-        <!-- Main Recipes Page (Auto-redirects if user is logged in) -->
+        <!-- Main Recipes Page -->
         <activity
             android:name=".activities.RecipesHomeActivity"
             android:exported="true" />
@@ -54,6 +55,11 @@
         <!-- Edit Profile Screen -->
         <activity
             android:name=".activities.EditProfileActivity"
+            android:exported="false" />
+
+        <!-- Edit My Recipe Screen -->
+        <activity
+            android:name=".activities.EditMyRecipeActivity"
             android:exported="false" />
 
         <!-- Favorite Recipes Screen -->

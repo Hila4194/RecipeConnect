@@ -12,6 +12,7 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import kotlinx.coroutines.*
+import java.io.File
 
 class RecipeAdapter(
     private var recipes: List<Recipe>,
@@ -57,10 +58,12 @@ class RecipeAdapter(
                 try {
                     val userImage = userImageDao.get(recipe.userId)
                     withContext(Dispatchers.Main) {
+                        val imagePath = userImage?.imagePath
                         Glide.with(itemView.context)
-                            .load(userImage?.imagePath ?: R.drawable.default_profile_image)
+                            .load(if (imagePath != null) File(imagePath) else R.drawable.default_profile_image)
                             .placeholder(R.drawable.default_profile_image)
                             .circleCrop()
+                            .skipMemoryCache(true) // ✅ Force reload
                             .into(profileImageView)
                     }
                 } catch (e: Exception) {

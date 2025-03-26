@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
@@ -15,12 +16,12 @@ import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.UserImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import com.example.recipeconnect.utils.CircleTransform
-import com.google.firebase.firestore.SetOptions
 
 class EditProfileActivity : AppCompatActivity() {
     private lateinit var profileImageView: ImageView
@@ -39,8 +40,12 @@ class EditProfileActivity : AppCompatActivity() {
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        // Centered custom title
+        val titleTextView = findViewById<TextView>(R.id.toolbarTitle)
+        titleTextView?.text = "Edit Profile"
 
         profileImageView = findViewById(R.id.editProfileImageView)
         firstNameEditText = findViewById(R.id.editFirstName)
@@ -63,7 +68,6 @@ class EditProfileActivity : AppCompatActivity() {
     private fun loadUserProfile() {
         val uid = auth.currentUser?.uid ?: return
 
-        // Load text details from Firestore
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -76,18 +80,20 @@ class EditProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
             }
 
-        // Load image from Room
         lifecycleScope.launch {
             val db = RecipeDatabase.getDatabase(applicationContext)
             val userImage = db.userImageDao().get(uid)
-            userImage?.let {
-                val file = File(it.imagePath)
-                if (file.exists()) {
-                    Picasso.get()
-                        .load(file)
-                        .transform(CircleTransform())
-                        .into(profileImageView)
-                }
+            val file = userImage?.imagePath?.let { File(it) }
+            if (file != null && file.exists()) {
+                Picasso.get()
+                    .load(file)
+                    .transform(CircleTransform())
+                    .into(profileImageView)
+            } else {
+                Picasso.get()
+                    .load(R.drawable.default_profile_image)
+                    .transform(CircleTransform())
+                    .into(profileImageView)
             }
         }
     }
@@ -113,7 +119,6 @@ class EditProfileActivity : AppCompatActivity() {
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        // Save image if updated
         if (imageUri != null) {
             val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
             val userImage = UserImage(uid = uid, imagePath = imagePath)
@@ -124,7 +129,6 @@ class EditProfileActivity : AppCompatActivity() {
             }
         }
 
-        // Update Firestore text fields
         val userData = mapOf(
             "firstName" to firstName,
             "lastName" to lastName,
@@ -135,6 +139,9 @@ class EditProfileActivity : AppCompatActivity() {
             .set(userData, SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
+
+                // ✅ Return to previous screen and trigger refresh
+                setResult(Activity.RESULT_OK)
                 finish()
             }
             .addOnFailureListener {
@@ -153,7 +160,9 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        menu?.add(Menu.NONE, R.id.menu_logout, Menu.NONE, "Logout")
+            ?.setIcon(R.drawable.ic_logout)
+            ?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 

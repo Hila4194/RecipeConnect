@@ -160,4 +160,8 @@ class RecipesHomeActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    override fun onResume() {
+        super.onResume()
+        adapter.notifyDataSetChanged()
+    }
 }
