@@ -38,11 +38,19 @@ class FavoriteRecipesActivity : AppCompatActivity() {
         // RecyclerView setup
         favoriteRecipesRecyclerView = findViewById(R.id.favoriteRecipesRecyclerView)
         favoriteRecipesRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = RecipeAdapter(emptyList()) { recipe ->
+
+        // Prepare email map for current user
+        val emailMap = mutableMapOf<String, String>()
+        auth.currentUser?.let { user ->
+            emailMap[user.uid] = user.email ?: "Unknown"
+        }
+
+        adapter = RecipeAdapter(emptyList(), emailMap, this) { recipe ->
             val intent = Intent(this, RecipeDetailActivity::class.java)
             intent.putExtra("RECIPE_ID", recipe.id)
             startActivity(intent)
         }
+
         favoriteRecipesRecyclerView.adapter = adapter
 
         // Observe all recipes and favorite recipe IDs

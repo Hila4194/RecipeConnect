@@ -14,19 +14,23 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.adapters.RecipeAdapter
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RecipesHomeActivity : AppCompatActivity() {
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var difficultySpinner: Spinner
     private lateinit var categorySpinner: Spinner
+    private lateinit var scrollToTopButton: FloatingActionButton
     private lateinit var adapter: RecipeAdapter
 
     private val auth = FirebaseAuth.getInstance()
     private val fullRecipeList = mutableListOf<Recipe>()
 
     private val recipeViewModel: RecipeViewModel by viewModels()
+    private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,21 +40,23 @@ class RecipesHomeActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        // Initialize RecyclerView
+        // Initialize views
         recipesRecyclerView = findViewById(R.id.recipesRecyclerView)
+        difficultySpinner = findViewById(R.id.difficultyFilterSpinner)
+        categorySpinner = findViewById(R.id.categoryFilterSpinner)
+        scrollToTopButton = findViewById(R.id.scrollToTopButton)
+
         recipesRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = RecipeAdapter(emptyList()) { recipe ->
+
+        // Prepare initial (empty) email map and adapter
+        val emailMap = mutableMapOf<String, String>()
+
+        adapter = RecipeAdapter(emptyList(), emailMap, this) { recipe ->
             val intent = Intent(this, RecipeDetailActivity::class.java)
             intent.putExtra("RECIPE_ID", recipe.id)
             startActivity(intent)
         }
         recipesRecyclerView.adapter = adapter
-
-        // Initialize Spinners
-        difficultySpinner = findViewById(R.id.difficultyFilterSpinner)
-        categorySpinner = findViewById(R.id.categoryFilterSpinner)
-
-        setupSpinners()
 
         // Observe recipes from ViewModel (Room DB)
         recipeViewModel.allRecipes.observe(this, Observer { recipes ->
@@ -59,7 +65,25 @@ class RecipesHomeActivity : AppCompatActivity() {
             filterRecipes()
         })
 
+        // Load user emails from Firestore
+        firestore.collection("users").get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val uid = document.getString("uid")
+                    val email = document.getString("email")
+                    if (!uid.isNullOrEmpty() && !email.isNullOrEmpty()) {
+                        emailMap[uid] = email
+                    }
+                }
+                adapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to load user emails", Toast.LENGTH_SHORT).show()
+            }
+
         // Set filter listeners
+        setupSpinners()
+
         difficultySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 filterRecipes()
@@ -74,6 +98,21 @@ class RecipesHomeActivity : AppCompatActivity() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Scroll-to-top button logic
+        recipesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 10) {
+                    scrollToTopButton.show()
+                } else if (dy < -10) {
+                    scrollToTopButton.hide()
+                }
+            }
+        })
+
+        scrollToTopButton.setOnClickListener {
+            recipesRecyclerView.smoothScrollToPosition(0)
         }
     }
 
@@ -120,5 +159,9 @@ class RecipesHomeActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+    override fun onResume() {
+        super.onResume()
+        adapter.notifyDataSetChanged()
     }
 }

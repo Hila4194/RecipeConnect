@@ -84,24 +84,29 @@ class UserProfileActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
             }
 
-        // Load profile image from Room
+        // Load profile image from Room, fallback to default
         lifecycleScope.launch {
             val db = RecipeDatabase.getDatabase(applicationContext)
             val userImage = db.userImageDao().get(uid)
-            userImage?.let {
-                val imageFile = File(it.imagePath)
-                if (imageFile.exists()) {
-                    Picasso.get()
-                        .load(imageFile)
-                        .transform(CircleTransform())
-                        .into(profileImageView)
-                }
+            val imageFile = userImage?.imagePath?.let { File(it) }
+            if (imageFile != null && imageFile.exists()) {
+                Picasso.get()
+                    .load(imageFile)
+                    .transform(CircleTransform())
+                    .into(profileImageView)
+            } else {
+                Picasso.get()
+                    .load(R.drawable.default_profile_image) // ✅ fallback
+                    .transform(CircleTransform())
+                    .into(profileImageView)
             }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.recipe_home_menu, menu)
+        menu?.add(Menu.NONE, R.id.menu_logout, Menu.NONE, "Logout")
+            ?.setIcon(R.drawable.ic_logout)
+            ?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         return true
     }
 
@@ -111,6 +116,7 @@ class UserProfileActivity : AppCompatActivity() {
                 onBackPressedDispatcher.onBackPressed()
                 true
             }
+
             R.id.menu_logout -> {
                 auth.signOut()
                 val intent = Intent(this, LoginActivity::class.java)
@@ -118,12 +124,13 @@ class UserProfileActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        loadUserProfile() // Reload fresh data every time the screen resumes
+        loadUserProfile()
     }
 }
