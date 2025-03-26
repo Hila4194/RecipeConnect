@@ -40,7 +40,14 @@ class MyRecipesActivity : AppCompatActivity() {
         // RecyclerView setup
         myRecipesRecyclerView = findViewById(R.id.myRecipesRecyclerView)
         myRecipesRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = RecipeAdapter(emptyList()) { recipe ->
+
+        // Create email map for current user only
+        val emailMap = mutableMapOf<String, String>()
+        auth.currentUser?.let { user ->
+            emailMap[user.uid] = user.email ?: "Unknown"
+        }
+
+        adapter = RecipeAdapter(emptyList(), emailMap, this) { recipe ->
             val intent = Intent(this, RecipeDetailActivity::class.java)
             intent.putExtra("RECIPE_ID", recipe.id)
             startActivity(intent)

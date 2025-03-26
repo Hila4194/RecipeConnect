@@ -4,10 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
@@ -16,12 +13,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class RecipeDetailActivity : AppCompatActivity() {
+
     private lateinit var recipeImageView: ImageView
     private lateinit var recipeTitleTextView: TextView
     private lateinit var recipeIngredientsTextView: TextView
     private lateinit var recipeStepsTextView: TextView
     private lateinit var likeButton: Button
     private lateinit var saveButton: Button
+
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -29,7 +28,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipe_detail)
 
-        // Set toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -41,7 +39,12 @@ class RecipeDetailActivity : AppCompatActivity() {
         likeButton = findViewById(R.id.likeButton)
         saveButton = findViewById(R.id.saveButton)
 
-        val recipeId = intent.getStringExtra("RECIPE_ID") ?: return
+        val recipeId = intent.getStringExtra("RECIPE_ID")
+        if (recipeId.isNullOrEmpty()) {
+            Toast.makeText(this, "No recipe found", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         loadRecipeDetails(recipeId)
 
@@ -54,7 +57,8 @@ class RecipeDetailActivity : AppCompatActivity() {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val title = document.getString("title") ?: "No Title"
-                    val ingredients = document.getString("ingredients") ?: "No Ingredients"
+                    val ingredientsList = document.get("ingredients") as? List<String> ?: listOf("No ingredients")
+                    val ingredients = ingredientsList.joinToString(", ")
                     val steps = document.getString("steps") ?: "No Steps"
                     val imageUrl = document.getString("imageUrl")
 
@@ -63,7 +67,11 @@ class RecipeDetailActivity : AppCompatActivity() {
                     recipeStepsTextView.text = steps
 
                     if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(imageUrl).into(recipeImageView)
+                        Glide.with(this)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.default_recipe)
+                            .centerCrop()
+                            .into(recipeImageView)
                     }
                 }
             }
