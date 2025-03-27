@@ -1,9 +1,12 @@
 package com.example.recipeconnect.viewmodels
 
+import FoodItem
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.Log
 import com.example.recipeconnect.models.dao.FavoriteRepository
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.RecipeRepository
@@ -19,6 +22,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val favoriteRepository = FavoriteRepository(favoriteDao)
 
     val allRecipes: LiveData<List<Recipe>> = recipeRepository.allRecipes
+    val nutritionLiveData = MutableLiveData<List<FoodItem>>()
 
     fun insert(recipe: Recipe) = viewModelScope.launch {
         recipeRepository.insert(recipe)
@@ -55,5 +59,20 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun getFavoriteRecipeIds(userId: String, callback: (List<String>) -> Unit) = viewModelScope.launch {
         val ids = favoriteRepository.getFavoriteRecipeIds(userId)
         callback(ids)
+    }
+
+    fun fetchCalories(ingredients: String) {
+        viewModelScope.launch {
+            try {
+                val response = NutritionixRetrofitInstance.api.getNutritionInfo(
+                    appId = "16bc77d8",
+                    appKey = "25a231cedefaaacc08357a2d4bb26481",
+                    body = mapOf("query" to ingredients)
+                )
+                nutritionLiveData.postValue(response.foods)
+            } catch (e: Exception) {
+                Log.e("Nutritionix", "Failed to fetch calories", e)
+            }
+        }
     }
 }

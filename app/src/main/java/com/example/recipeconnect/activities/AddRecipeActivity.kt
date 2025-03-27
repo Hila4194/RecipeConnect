@@ -102,7 +102,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
         recipeViewModel.insert(recipe)
 
-        Toast.makeText(this, "Recipe saved locally!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Recipe saved!", Toast.LENGTH_SHORT).show()
         finish()
     }
 
