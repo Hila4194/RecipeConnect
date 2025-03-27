@@ -11,7 +11,6 @@ import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
-import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.viewmodels.RecipeViewModel
 import kotlinx.coroutines.*
 import java.io.File
@@ -132,10 +131,12 @@ class EditMyRecipeActivity : AppCompatActivity() {
             return
         }
 
-        val imageUrl = if (imageUri != null) {
+        val imageUrl: String = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
+        } else if (!existingImageUrl.isNullOrBlank() && File(existingImageUrl!!).exists()) {
+            existingImageUrl!!
         } else {
-            existingImageUrl ?: ""
+            ""
         }
 
         val updatedRecipe = Recipe(

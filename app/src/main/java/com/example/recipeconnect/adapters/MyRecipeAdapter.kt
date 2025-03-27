@@ -2,6 +2,8 @@ package com.example.recipeconnect.adapters
 
 import android.app.AlertDialog
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,9 @@ import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
 import java.io.File
+import java.io.FileOutputStream
+import java.util.*
+import kotlinx.coroutines.*
 
 class MyRecipeAdapter(
     private var recipes: List<Recipe>,
@@ -47,22 +52,50 @@ class MyRecipeAdapter(
         fun bind(recipe: Recipe) {
             titleTextView.text = recipe.title
 
-            // 🔥 FIX: Load local image path from File if it exists
-            val imageFile = File(recipe.imageUrl ?: "")
-            Glide.with(context)
-                .load(recipe.imageUrl ?: "")
-                .placeholder(R.drawable.default_recipe)
-                .error(R.drawable.default_recipe)
-                .centerCrop()
-                .into(recipeImageView)
+            val imagePath = recipe.imageUrl
+            Log.d("MyRecipeAdapter", "Image path: $imagePath")
 
-            itemView.setOnClickListener {
-                onItemClick(recipe)
+            if (!imagePath.isNullOrEmpty()) {
+                if (imagePath.startsWith("content://")) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val uri = Uri.parse(imagePath)
+                            val fileName = UUID.randomUUID().toString() + ".jpg"
+                            val destFile = File(context.cacheDir, fileName)
+                            context.contentResolver.openInputStream(uri)?.use { input ->
+                                FileOutputStream(destFile).use { output ->
+                                    input.copyTo(output)
+                                }
+                            }
+                            withContext(Dispatchers.Main) {
+                                Glide.with(context)
+                                    .load(destFile)
+                                    .placeholder(R.drawable.default_recipe)
+                                    .error(R.drawable.default_recipe)
+                                    .centerCrop()
+                                    .into(recipeImageView)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("MyRecipeAdapter", "Error loading content URI image", e)
+                            recipeImageView.setImageResource(R.drawable.default_recipe)
+                        }
+                    }
+                } else {
+                    // File path
+                    Glide.with(context)
+                        .load(File(imagePath))
+                        .placeholder(R.drawable.default_recipe)
+                        .error(R.drawable.default_recipe)
+                        .centerCrop()
+                        .into(recipeImageView)
+                }
+            } else {
+                recipeImageView.setImageResource(R.drawable.default_recipe)
             }
 
-            editIcon.setOnClickListener {
-                onEditClick(recipe)
-            }
+            itemView.setOnClickListener { onItemClick(recipe) }
+
+            editIcon.setOnClickListener { onEditClick(recipe) }
 
             deleteIcon.setOnClickListener {
                 AlertDialog.Builder(context)
