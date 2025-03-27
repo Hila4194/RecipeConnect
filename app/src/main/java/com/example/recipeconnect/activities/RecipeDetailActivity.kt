@@ -2,6 +2,7 @@ package com.example.recipeconnect.activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +26,9 @@ class RecipeDetailActivity : AppCompatActivity() {
     private lateinit var ingredientsTextView: TextView
     private lateinit var stepsTextView: TextView
     private lateinit var likeIcon: ImageButton
-    private lateinit var caloriesTextView: TextView  // ✅ New binding
+    private lateinit var caloriesTextView: TextView
+    private lateinit var caloriesSpinner: ProgressBar
+    private lateinit var nutritionixAttribution: TextView
 
     private val recipeViewModel: RecipeViewModel by viewModels()
     private val db = FirebaseFirestore.getInstance()
@@ -50,20 +53,25 @@ class RecipeDetailActivity : AppCompatActivity() {
         ingredientsTextView = findViewById(R.id.recipeIngredientsTextView)
         stepsTextView = findViewById(R.id.recipeStepsTextView)
         likeIcon = findViewById(R.id.likeIcon)
-        caloriesTextView = findViewById(R.id.caloriesTextView) // ✅ Added
+        caloriesTextView = findViewById(R.id.caloriesTextView)
+        caloriesSpinner = findViewById(R.id.caloriesLoadingSpinner)
+        nutritionixAttribution = findViewById(R.id.nutritionixAttributionTextView)
+        nutritionixAttribution.visibility = View.GONE
 
         // Observe the calories
         recipeViewModel.nutritionLiveData.observe(this) { foods ->
+            caloriesSpinner.visibility = View.GONE
+            nutritionixAttribution.visibility = View.VISIBLE
+
             if (foods.isNotEmpty()) {
                 val totalCalories = foods.sumOf { it.nf_calories }
                 val breakdown = foods.joinToString("\n") {
-                    "${it.food_name} (${it.serving_qty} ${it.serving_unit}): ${it.nf_calories.toInt()} kcal"
+                    "${it.food_name}: ${it.nf_calories.toInt()} kcal"
                 }
                 caloriesTextView.text = "Total: ${totalCalories.toInt()} kcal\n$breakdown"
             } else {
                 caloriesTextView.text = "No calorie data available"
             }
-            Log.d("CALORIES", "Received response: ${foods.size} items")
         }
 
         val recipeId = intent.getStringExtra("RECIPE_ID")
@@ -97,7 +105,8 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // ✅ Fetch calories using ingredients
         val query = recipe.ingredients.joinToString(", ")
-        Log.d("CALORIES", "Calling fetchCalories with: $query")
+        caloriesSpinner.visibility = View.VISIBLE
+        nutritionixAttribution.visibility = View.GONE
         recipeViewModel.fetchCalories(query)
 
         likeIcon.setOnClickListener {
