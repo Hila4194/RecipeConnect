@@ -13,6 +13,8 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class AddRecipeActivity : AppCompatActivity() {
@@ -79,6 +81,13 @@ class AddRecipeActivity : AppCompatActivity() {
             return
         }
 
+        // ✅ Save image to internal storage
+        val imageUrl = if (imageUri != null) {
+            saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
+        } else {
+            ""
+        }
+
         val recipe = Recipe(
             id = UUID.randomUUID().toString(),
             title = title,
@@ -87,7 +96,7 @@ class AddRecipeActivity : AppCompatActivity() {
             category = category,
             ingredients = ingredients,
             steps = steps,
-            imageUrl = imageUri?.toString() ?: "",
+            imageUrl = imageUrl,
             userId = userId
         )
 
@@ -110,6 +119,16 @@ class AddRecipeActivity : AppCompatActivity() {
             imageUri = data?.data
             Glide.with(this).load(imageUri).into(recipeImageView)
         }
+    }
+
+    private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File(filesDir, "$fileName.jpg")
+        val outputStream = FileOutputStream(file)
+        inputStream?.copyTo(outputStream)
+        outputStream.close()
+        inputStream?.close()
+        return file.absolutePath
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

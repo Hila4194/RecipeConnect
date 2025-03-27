@@ -93,6 +93,7 @@ class UserProfileActivity : AppCompatActivity() {
                 Picasso.get()
                     .load(imageFile)
                     .transform(CircleTransform())
+                    .memoryPolicy(com.squareup.picasso.MemoryPolicy.NO_CACHE, com.squareup.picasso.MemoryPolicy.NO_STORE)
                     .into(profileImageView)
             } else {
                 Picasso.get()

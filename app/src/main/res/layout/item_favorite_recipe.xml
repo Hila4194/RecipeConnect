@@ -25,8 +25,8 @@
             android:background="@drawable/circle_background"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:clickable="false"
-            android:focusable="false"/>
+            android:clickable="true"
+            android:focusable="true"/>
 
         <!-- Recipe Title -->
         <TextView
@@ -41,29 +41,8 @@
             android:layout_toEndOf="@id/recipeImageView"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="64dp"
-            android:clickable="false"
-            android:focusable="false"/>
+            android:clickable="true"
+            android:focusable="true"/>
 
-        <!-- Edit Icon -->
-        <ImageView
-            android:id="@+id/editIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/edit"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="36dp"
-            android:layout_centerVertical="true"
-            android:contentDescription="Edit"/>
-
-        <!-- Delete Icon -->
-        <ImageView
-            android:id="@+id/deleteIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/delete"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="4dp"
-            android:layout_centerVertical="true"
-            android:contentDescription="Delete"/>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

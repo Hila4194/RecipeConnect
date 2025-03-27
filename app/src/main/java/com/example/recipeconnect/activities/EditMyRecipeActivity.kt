@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,8 +13,8 @@ import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
-import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.viewmodels.RecipeViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -32,6 +34,7 @@ class EditMyRecipeActivity : AppCompatActivity() {
     private lateinit var categorySpinner: Spinner
     private lateinit var saveRecipeButton: Button
 
+    private val auth = FirebaseAuth.getInstance()
     private var imageUri: Uri? = null
     private var recipeId: String? = null
     private var existingImageUrl: String? = null
@@ -39,7 +42,7 @@ class EditMyRecipeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_recipe)
+        setContentView(R.layout.activity_edit_recipe)
 
         // Toolbar setup
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -132,10 +135,12 @@ class EditMyRecipeActivity : AppCompatActivity() {
             return
         }
 
-        val imageUrl = if (imageUri != null) {
+        val imageUrl: String = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
+        } else if (!existingImageUrl.isNullOrBlank() && File(existingImageUrl!!).exists()) {
+            existingImageUrl!!
         } else {
-            existingImageUrl ?: ""
+            ""
         }
 
         val updatedRecipe = Recipe(
@@ -164,5 +169,33 @@ class EditMyRecipeActivity : AppCompatActivity() {
         outputStream.close()
         inputStream?.close()
         return file.absolutePath
+    }
+
+    // Adding the logout logic
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.recipe_home_menu, menu) // Inflate the menu
+
+        menu?.removeItem(R.id.menu_profile)  // Remove the menu item with ID `menu_profile`
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+
+            R.id.menu_logout -> {
+                auth.signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
