@@ -7,7 +7,6 @@
     android:background="@color/light_blue"
     android:padding="20dp">
 
-    <!-- Login Form Wrapper -->
     <LinearLayout
         android:id="@+id/loginForm"
         android:layout_width="0dp"
@@ -19,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Sign-in Title -->
+        <!-- Title -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
@@ -30,45 +29,33 @@
             android:textColor="@android:color/white"
             android:background="@color/purple_700"
             android:gravity="center"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="24dp" />
 
         <!-- Email Field -->
-        <TextView
-            android:id="@+id/emailLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email Address:"
-            android:textSize="16sp"
-            android:textColor="@color/black"/>
-
-        <EditText
-            android:id="@+id/emailEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="Enter your email"
-            android:padding="10dp"
-            android:background="@drawable/custom_edittext_bg"
-            android:layout_marginBottom="16dp"/>
+            android:hint="Email Address"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password Field -->
-        <TextView
-            android:id="@+id/passwordLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Password:"
-            android:textSize="16sp"
-            android:textColor="@color/black"/>
-
-        <EditText
-            android:id="@+id/passwordEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="Enter your password"
-            android:padding="10dp"
-            android:background="@drawable/custom_edittext_bg"
-            android:layout_marginBottom="20dp"/>
+            android:hint="Password"
+            android:layout_marginBottom="20dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Login Button -->
         <ImageView

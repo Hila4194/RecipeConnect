@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="6dp"
-    android:layout_marginHorizontal="8dp"
-    android:backgroundTint="@android:color/white">
+    app:strokeWidth="0dp"
+    app:backgroundTint="@android:color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,17 +17,17 @@
         android:padding="12dp">
 
         <!-- Recipe Image -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/recipeImageView"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_recipe"
-            android:background="@drawable/circle_background"
+            app:shapeAppearanceOverlay="@style/CircleImage"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true" />
 
         <!-- Recipe Title -->
         <TextView
@@ -42,7 +43,6 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="64dp"
             android:clickable="true"
-            android:focusable="true"/>
-
+            android:focusable="true" />
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

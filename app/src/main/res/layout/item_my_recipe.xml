@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="6dp"
     android:layout_marginHorizontal="8dp"
-    android:backgroundTint="@android:color/white">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,17 +15,15 @@
         android:padding="12dp">
 
         <!-- Recipe Image -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/recipeImageView"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_recipe"
-            android:background="@drawable/circle_background"
+            app:shapeAppearanceOverlay="@style/RoundedImage"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:clickable="false"
-            android:focusable="false"/>
+            android:layout_centerVertical="true" />
 
         <!-- Recipe Title -->
         <TextView
@@ -40,9 +37,7 @@
             android:textColor="@android:color/black"
             android:layout_toEndOf="@id/recipeImageView"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="64dp"
-            android:clickable="false"
-            android:focusable="false"/>
+            android:layout_marginEnd="64dp" />
 
         <!-- Edit Icon -->
         <ImageView
@@ -50,10 +45,11 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="36dp"
             android:layout_centerVertical="true"
-            android:contentDescription="Edit"/>
+            android:contentDescription="Edit" />
 
         <!-- Delete Icon -->
         <ImageView
@@ -61,9 +57,10 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="4dp"
             android:layout_centerVertical="true"
-            android:contentDescription="Delete"/>
+            android:contentDescription="Delete" />
     </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -40,6 +40,17 @@ class RecipesHomeActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        val welcomeTextView: TextView = findViewById(R.id.welcomeTextView)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.uid?.let { uid ->
+            firestore.collection("users").document(uid).get()
+                .addOnSuccessListener { doc ->
+                    val first = doc.getString("firstName") ?: ""
+                    val last = doc.getString("lastName") ?: ""
+                    welcomeTextView.text = "Hi, $first $last 👋"
+                }
+        }
+
         // Initialize views
         recipesRecyclerView = findViewById(R.id.recipesRecyclerView)
         difficultySpinner = findViewById(R.id.difficultyFilterSpinner)
