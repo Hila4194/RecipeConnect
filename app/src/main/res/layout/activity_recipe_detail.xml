@@ -7,7 +7,6 @@
     android:padding="16dp"
     android:background="@color/light_blue">
 
-    <!-- Toolbar with Logout Support -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -21,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Recipe Image -->
     <ImageView
         android:id="@+id/recipeImageView"
         android:layout_width="match_parent"
@@ -29,21 +27,57 @@
         android:scaleType="centerCrop"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Recipe Title -->
+    <!-- Title centered -->
     <TextView
         android:id="@+id/recipeTitleTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Recipe Title"
-        android:textSize="24sp"
+        android:textSize="22sp"
+        android:textColor="@android:color/black"
         android:textStyle="bold"
-        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/recipeImageView"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
-    <!-- Ingredients Label -->
+    <!-- Creator centered under title -->
+    <TextView
+        android:id="@+id/recipeCreatorTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="By: someone"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/recipeTitleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Prep time -->
+    <TextView
+        android:id="@+id/prepTimeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prep Time:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/recipeCreatorTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/recipePrepTimeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="20 minutes"
+        app:layout_constraintTop_toBottomOf="@id/prepTimeLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="4dp" />
+
+    <!-- Ingredients -->
     <TextView
         android:id="@+id/ingredientsLabel"
         android:layout_width="wrap_content"
@@ -52,20 +86,18 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/recipeTitleTextView"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/recipePrepTimeTextView"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Ingredients Text -->
     <TextView
         android:id="@+id/recipeIngredientsTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="List of ingredients..."
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/ingredientsLabel"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Steps Label -->
+    <!-- Steps -->
     <TextView
         android:id="@+id/stepsLabel"
         android:layout_width="wrap_content"
@@ -75,42 +107,25 @@
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/recipeIngredientsTextView"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Steps Text -->
     <TextView
         android:id="@+id/recipeStepsTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Step by step instructions..."
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/stepsLabel"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Like Icon (larger) -->
+    <ImageButton
+        android:id="@+id/likeIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Like"
+        android:src="@drawable/ic_heart_outline"
+        app:layout_constraintTop_toBottomOf="@id/recipeStepsTextView"
         app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Like Button -->
-    <Button
-        android:id="@+id/likeButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Like"
-        android:backgroundTint="@color/purple_700"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/recipeStepsTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/saveButton" />
-
-    <!-- Save Button -->
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        android:backgroundTint="@color/purple_700"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/recipeStepsTextView"
-        app:layout_constraintStart_toEndOf="@id/likeButton"
-        app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

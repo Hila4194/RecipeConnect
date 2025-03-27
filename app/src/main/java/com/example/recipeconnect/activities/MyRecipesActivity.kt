@@ -50,7 +50,7 @@ class MyRecipesActivity : AppCompatActivity() {
         addRecipeButton = findViewById(R.id.addRecipeButton)
         emptyStateTextView = findViewById(R.id.emptyStateTextView)
 
-        // Adapter
+        // Adapter (editable mode)
         adapter = MyRecipeAdapter(
             emptyList(),
             this,
@@ -66,7 +66,9 @@ class MyRecipesActivity : AppCompatActivity() {
                 val intent = Intent(this, RecipeDetailActivity::class.java)
                 intent.putExtra("RECIPE_ID", recipe.id)
                 startActivity(intent)
-            }
+            },
+            isEditable = true, // Ensuring editable mode is enabled
+            isFavorite = false // Non-clickable recipe item
         )
         myRecipesRecyclerView.adapter = adapter
 

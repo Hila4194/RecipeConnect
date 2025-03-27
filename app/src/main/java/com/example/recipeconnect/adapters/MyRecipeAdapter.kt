@@ -23,7 +23,9 @@ class MyRecipeAdapter(
     private val context: Context,
     private val onDeleteClick: (Recipe) -> Unit,
     private val onEditClick: (Recipe) -> Unit,
-    private val onItemClick: (Recipe) -> Unit
+    private val onItemClick: (Recipe) -> Unit,
+    private val isEditable: Boolean = true, // Default is editable
+    private val isFavorite: Boolean = false // Flag to determine if the item is in FavoriteRecipes
 ) : RecyclerView.Adapter<MyRecipeAdapter.MyRecipeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyRecipeViewHolder {
@@ -52,6 +54,7 @@ class MyRecipeAdapter(
         fun bind(recipe: Recipe) {
             titleTextView.text = recipe.title
 
+            // Handle image loading
             val imagePath = recipe.imageUrl
             Log.d("MyRecipeAdapter", "Image path: $imagePath")
 
@@ -81,7 +84,6 @@ class MyRecipeAdapter(
                         }
                     }
                 } else {
-                    // File path
                     Glide.with(context)
                         .load(File(imagePath))
                         .placeholder(R.drawable.default_recipe)
@@ -93,17 +95,36 @@ class MyRecipeAdapter(
                 recipeImageView.setImageResource(R.drawable.default_recipe)
             }
 
-            itemView.setOnClickListener { onItemClick(recipe) }
+            // Handle item click for Favorite Recipes
+            if (isFavorite) {
+                itemView.setOnClickListener { onItemClick(recipe) } // Recipe item is clickable in Favorite Recipes
+            } else {
+                // In My Recipes, disable click on the item
+                recipeImageView.isClickable = false
+                recipeImageView.isFocusable = false
+                titleTextView.isClickable = false
+                titleTextView.isFocusable = false
+            }
 
-            editIcon.setOnClickListener { onEditClick(recipe) }
+            // Edit and delete icons are only shown in editable mode (My Recipes)
+            if (isEditable) {
+                editIcon.visibility = View.VISIBLE
+                deleteIcon.visibility = View.VISIBLE
 
-            deleteIcon.setOnClickListener {
-                AlertDialog.Builder(context)
-                    .setTitle("Delete Recipe")
-                    .setMessage("Are you sure you want to delete this recipe?")
-                    .setPositiveButton("Yes") { _, _ -> onDeleteClick(recipe) }
-                    .setNegativeButton("No", null)
-                    .show()
+                editIcon.setOnClickListener { onEditClick(recipe) }
+
+                deleteIcon.setOnClickListener {
+                    AlertDialog.Builder(context)
+                        .setTitle("Delete Recipe")
+                        .setMessage("Are you sure you want to delete this recipe?")
+                        .setPositiveButton("Yes") { _, _ -> onDeleteClick(recipe) }
+                        .setNegativeButton("No", null)
+                        .show()
+                }
+            } else {
+                // Hide edit/delete icons for Favorite Recipes
+                editIcon.visibility = View.GONE
+                deleteIcon.visibility = View.GONE
             }
         }
     }
