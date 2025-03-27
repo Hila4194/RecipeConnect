@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.models.dao.RecipeDatabase
@@ -104,6 +105,7 @@ class RecipeAdapter(
                             .placeholder(R.drawable.default_profile_image)
                             .circleCrop()
                             .skipMemoryCache(true)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .into(profileImageView)
                     }
                 } catch (e: Exception) {
