@@ -17,6 +17,7 @@ picasso = "2.8"
 roomRuntimeVersion = "2.6.1"
 googleServices = "4.4.2"
 firebaseCommonKtx = "21.0.0"
+media3CommonKtx = "1.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
