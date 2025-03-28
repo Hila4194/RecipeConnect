@@ -1,10 +1,10 @@
 package com.example.recipeconnect.base
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.recipeconnect.activities.LoginActivity
+import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
 import com.google.firebase.auth.FirebaseAuth
 
@@ -16,6 +16,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.logout_menu, menu)
     }
 
@@ -31,8 +32,7 @@ abstract class BaseFragment : Fragment() {
 
     private fun logoutUser() {
         FirebaseAuth.getInstance().signOut()
-        val intent = Intent(requireContext(), LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+        findNavController().navigate(R.id.loginFragment)
     }
 }

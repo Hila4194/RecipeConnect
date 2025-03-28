@@ -1,16 +1,18 @@
-package com.example.recipeconnect.activities
+package com.example.recipeconnect.fragments
 
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.*
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
+import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -18,7 +20,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
-class AddRecipeActivity : AppCompatActivity() {
+class AddRecipeFragment : BaseFragment() {
 
     private lateinit var recipeImageView: ImageView
     private lateinit var recipeTitleEditText: EditText
@@ -33,25 +35,35 @@ class AddRecipeActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val recipeViewModel: RecipeViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_recipe)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_add_recipe, container, false)
+    }
 
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        recipeImageView = findViewById(R.id.recipeImageView)
-        recipeTitleEditText = findViewById(R.id.recipeTitleEditText)
-        prepTimeEditText = findViewById(R.id.prepTimeEditText)
-        difficultySpinner = findViewById(R.id.difficultySpinner)
-        categorySpinner = findViewById(R.id.categorySpinner)
-        ingredientsEditText = findViewById(R.id.ingredientsEditText)
-        stepsEditText = findViewById(R.id.stepsEditText)
-        saveRecipeButton = findViewById(R.id.saveRecipeButton)
+        // Set up toolbar for BaseFragment menu to work (logout icon)
+        val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
+        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        recipeImageView = view.findViewById(R.id.recipeImageView)
+        recipeTitleEditText = view.findViewById(R.id.recipeTitleEditText)
+        prepTimeEditText = view.findViewById(R.id.prepTimeEditText)
+        difficultySpinner = view.findViewById(R.id.difficultySpinner)
+        categorySpinner = view.findViewById(R.id.categorySpinner)
+        ingredientsEditText = view.findViewById(R.id.ingredientsEditText)
+        stepsEditText = view.findViewById(R.id.stepsEditText)
+        saveRecipeButton = view.findViewById(R.id.saveRecipeButton)
 
         setupSpinners()
 
-        findViewById<Button>(R.id.selectImageButton).setOnClickListener {
+        view.findViewById<Button>(R.id.selectImageButton).setOnClickListener {
             selectImageFromGallery()
         }
 
@@ -61,10 +73,11 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        difficultySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item,
-            arrayOf("Easy", "Medium", "Hard"))
-        categorySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item,
-            arrayOf("Dairy", "Meat", "Chicken", "Desserts", "Asian"))
+        val difficulties = arrayOf("Easy", "Medium", "Hard")
+        val categories = arrayOf("Dairy", "Meat", "Chicken", "Desserts", "Asian")
+
+        difficultySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, difficulties)
+        categorySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
     }
 
     private fun validateAndSaveRecipe() {
@@ -78,16 +91,13 @@ class AddRecipeActivity : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return
 
         if (title.isEmpty() || prepTime.isEmpty() || ingredients.isEmpty() || steps.isEmpty()) {
-            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // ✅ Save image to internal storage
         val imageUrl = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
-        } else {
-            ""
-        }
+        } else ""
 
         val recipe = Recipe(
             id = UUID.randomUUID().toString(),
@@ -102,9 +112,8 @@ class AddRecipeActivity : AppCompatActivity() {
         )
 
         recipeViewModel.insert(recipe)
-
-        Toast.makeText(this, "Recipe saved!", Toast.LENGTH_SHORT).show()
-        finish()
+        Toast.makeText(requireContext(), "Recipe saved!", Toast.LENGTH_SHORT).show()
+        findNavController().navigateUp()
     }
 
     private fun selectImageFromGallery() {
@@ -123,30 +132,12 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File(filesDir, "$fileName.jpg")
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val file = File(requireContext().filesDir, "$fileName.jpg")
         val outputStream = FileOutputStream(file)
         inputStream?.copyTo(outputStream)
         outputStream.close()
         inputStream?.close()
         return file.absolutePath
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.logout_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, LoginActivity::class.java) // replace with your login screen
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

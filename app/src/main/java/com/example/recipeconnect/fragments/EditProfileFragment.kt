@@ -1,19 +1,20 @@
-package com.example.recipeconnect.activities
+package com.example.recipeconnect.fragments
 
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
+import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.UserImage
+import com.example.recipeconnect.utils.CircleTransform
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -21,9 +22,9 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import com.example.recipeconnect.utils.CircleTransform
 
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileFragment : BaseFragment() {
+
     private lateinit var profileImageView: ImageView
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
@@ -34,29 +35,33 @@ class EditProfileActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_profile)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
+    }
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Centered custom title
-        val titleTextView = findViewById<TextView>(R.id.toolbarTitle)
-        titleTextView?.text = "Edit Profile"
+        // Set up toolbar for BaseFragment menu to work (logout icon)
+        val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
+        (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
 
-        profileImageView = findViewById(R.id.editProfileImageView)
-        firstNameEditText = findViewById(R.id.editFirstName)
-        lastNameEditText = findViewById(R.id.editLastName)
-        bioEditText = findViewById(R.id.editBio)
-        saveButton = findViewById(R.id.saveProfileButton)
-        val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
+        profileImageView = view.findViewById(R.id.editProfileImageView)
+        firstNameEditText = view.findViewById(R.id.editFirstName)
+        lastNameEditText = view.findViewById(R.id.editLastName)
+        bioEditText = view.findViewById(R.id.editBio)
+        saveButton = view.findViewById(R.id.saveProfileButton)
+        val changeImageButton = view.findViewById<Button>(R.id.changeProfileImageButton)
 
         loadUserProfile()
 
-        changeProfileImageButton.setOnClickListener {
+        changeImageButton.setOnClickListener {
             selectImageFromGallery()
         }
 
@@ -77,11 +82,11 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
             }
 
         lifecycleScope.launch {
-            val db = RecipeDatabase.getDatabase(applicationContext)
+            val db = RecipeDatabase.getDatabase(requireContext())
             val userImage = db.userImageDao().get(uid)
             val file = userImage?.imagePath?.let { File(it) }
             if (file != null && file.exists()) {
@@ -96,6 +101,39 @@ class EditProfileActivity : AppCompatActivity() {
                     .into(profileImageView)
             }
         }
+    }
+
+    private fun saveUserProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        val firstName = firstNameEditText.text.toString().trim()
+        val lastName = lastNameEditText.text.toString().trim()
+        val bio = bioEditText.text.toString().trim()
+
+        if (imageUri != null) {
+            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
+            val userImage = UserImage(uid = uid, imagePath = imagePath)
+
+            lifecycleScope.launch {
+                val db = RecipeDatabase.getDatabase(requireContext())
+                db.userImageDao().insert(userImage)
+            }
+        }
+
+        val userData = mapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "bio" to bio
+        )
+
+        firestore.collection("users").document(uid)
+            .set(userData, SetOptions.merge())
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
+                findNavController().navigateUp()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Error saving profile", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun selectImageFromGallery() {
@@ -113,73 +151,13 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveUserProfile() {
-        val uid = auth.currentUser?.uid ?: return
-        val firstName = firstNameEditText.text.toString().trim()
-        val lastName = lastNameEditText.text.toString().trim()
-        val bio = bioEditText.text.toString().trim()
-
-        if (imageUri != null) {
-            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
-            val userImage = UserImage(uid = uid, imagePath = imagePath)
-
-            lifecycleScope.launch {
-                val db = RecipeDatabase.getDatabase(applicationContext)
-                db.userImageDao().insert(userImage)
-            }
-        }
-
-        val userData = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "bio" to bio
-        )
-
-        firestore.collection("users").document(uid)
-            .set(userData, SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show()
-
-                // ✅ Return to previous screen and trigger refresh
-                setResult(Activity.RESULT_OK)
-                finish()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error saving profile", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File(filesDir, "$fileName.jpg")
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val file = File(requireContext().filesDir, "$fileName.jpg")
         val outputStream = FileOutputStream(file)
         inputStream?.copyTo(outputStream)
         outputStream.close()
         inputStream?.close()
         return file.absolutePath
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.add(Menu.NONE, R.id.menu_logout, Menu.NONE, "Logout")
-            ?.setIcon(R.drawable.ic_logout)
-            ?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
-                true
-            }
-            R.id.menu_logout -> {
-                auth.signOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

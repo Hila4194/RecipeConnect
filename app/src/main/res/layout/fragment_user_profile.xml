@@ -19,7 +19,24 @@
             android:background="@color/purple_700"
             app:navigationIcon="@drawable/baseline_arrow_back"
             app:title="User Profile"
-            app:titleTextColor="@android:color/white" />
+            app:titleTextColor="@android:color/white">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/toolbarTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="User Profile"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
 
         <!-- Profile Image -->
         <FrameLayout
@@ -36,7 +53,6 @@
                 android:background="@drawable/circle_background"
                 android:contentDescription="Profile Image"
                 android:clipToOutline="true" />
-
         </FrameLayout>
 
         <!-- User Info Fields -->

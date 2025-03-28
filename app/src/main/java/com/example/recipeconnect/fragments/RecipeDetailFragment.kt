@@ -1,12 +1,12 @@
-package com.example.recipeconnect.activities
+package com.example.recipeconnect.fragments
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
+import android.view.*
 import android.widget.*
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.Recipe
@@ -17,7 +17,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
 
-class RecipeDetailActivity : AppCompatActivity() {
+class RecipeDetailFragment : Fragment() {
+
+    private val args: RecipeDetailFragmentArgs by navArgs()
 
     private lateinit var recipeImageView: ImageView
     private lateinit var titleTextView: TextView
@@ -32,34 +34,43 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private val recipeViewModel: RecipeViewModel by viewModels()
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     private val favoriteDao by lazy {
-        RecipeDatabase.getDatabase(this).favoriteRecipeDao()
+        RecipeDatabase.getDatabase(requireContext()).favoriteRecipeDao()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_recipe_detail)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        setHasOptionsMenu(true)
+        return inflater.inflate(R.layout.fragment_recipe_detail, container, false)
+    }
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { finish() }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val toolbar: androidx.appcompat.widget.Toolbar = view.findViewById(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
 
         // Bind views
-        recipeImageView = findViewById(R.id.recipeImageView)
-        titleTextView = findViewById(R.id.recipeTitleTextView)
-        creatorTextView = findViewById(R.id.recipeCreatorTextView)
-        prepTimeTextView = findViewById(R.id.recipePrepTimeTextView)
-        ingredientsTextView = findViewById(R.id.recipeIngredientsTextView)
-        stepsTextView = findViewById(R.id.recipeStepsTextView)
-        likeIcon = findViewById(R.id.likeIcon)
-        caloriesTextView = findViewById(R.id.caloriesTextView)
-        caloriesSpinner = findViewById(R.id.caloriesLoadingSpinner)
-        nutritionixAttribution = findViewById(R.id.nutritionixAttributionTextView)
+        recipeImageView = view.findViewById(R.id.recipeImageView)
+        titleTextView = view.findViewById(R.id.recipeTitleTextView)
+        creatorTextView = view.findViewById(R.id.recipeCreatorTextView)
+        prepTimeTextView = view.findViewById(R.id.recipePrepTimeTextView)
+        ingredientsTextView = view.findViewById(R.id.recipeIngredientsTextView)
+        stepsTextView = view.findViewById(R.id.recipeStepsTextView)
+        likeIcon = view.findViewById(R.id.likeIcon)
+        caloriesTextView = view.findViewById(R.id.caloriesTextView)
+        caloriesSpinner = view.findViewById(R.id.caloriesLoadingSpinner)
+        nutritionixAttribution = view.findViewById(R.id.nutritionixAttributionTextView)
         nutritionixAttribution.visibility = View.GONE
 
-        // Observe the calories
-        recipeViewModel.nutritionLiveData.observe(this) { foods ->
+        // Calories Observer
+        recipeViewModel.nutritionLiveData.observe(viewLifecycleOwner) { foods ->
             caloriesSpinner.visibility = View.GONE
             nutritionixAttribution.visibility = View.VISIBLE
 
@@ -74,13 +85,7 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
         }
 
-        val recipeId = intent.getStringExtra("RECIPE_ID")
-        if (recipeId == null) {
-            Toast.makeText(this, "Missing recipe ID", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
+        val recipeId = args.recipeId
         recipeViewModel.getRecipeById(recipeId) { recipe ->
             recipe?.let { showRecipeDetails(it) }
         }
@@ -102,17 +107,15 @@ class RecipeDetailActivity : AppCompatActivity() {
         fetchCreatorEmail(recipe.userId)
         updateLikeIcon(recipe.id)
 
-
-        // ✅ Fetch calories using ingredients
         val query = recipe.ingredients.joinToString(", ")
         caloriesSpinner.visibility = View.VISIBLE
         nutritionixAttribution.visibility = View.GONE
         recipeViewModel.fetchCalories(query)
 
         likeIcon.setOnClickListener {
-            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            val userId = auth.currentUser?.uid
             if (userId == null) {
-                Toast.makeText(this, "You must be logged in", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "You must be logged in", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -131,7 +134,7 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun updateLikeIcon(recipeId: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = auth.currentUser?.uid ?: return
         CoroutineScope(Dispatchers.IO).launch {
             val isFavorite = favoriteDao.isFavorite(userId, recipeId)
             withContext(Dispatchers.Main) {
