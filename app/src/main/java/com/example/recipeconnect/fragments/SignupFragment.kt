@@ -15,11 +15,13 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.models.User
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.UserImage
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 
 class SignupFragment : Fragment() {
@@ -66,16 +68,17 @@ class SignupFragment : Fragment() {
         }
 
         dobEditText.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date of Birth")
+                .build()
 
-            val datePicker = DatePickerDialog(requireContext(), { _, y, m, d ->
-                dobEditText.setText("$d/${m + 1}/$y")
-            }, year, month, day)
+            datePicker.show(parentFragmentManager, "DOB_PICKER")
 
-            datePicker.show()
+            datePicker.addOnPositiveButtonClickListener { selection ->
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val dateString = sdf.format(Date(selection))
+                dobEditText.setText(dateString)
+            }
         }
 
         createAccountButton.setOnClickListener {
