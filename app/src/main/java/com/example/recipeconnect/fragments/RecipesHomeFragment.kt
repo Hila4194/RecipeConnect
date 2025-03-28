@@ -129,7 +129,7 @@ class RecipesHomeFragment : Fragment() {
 
     private fun setupSpinners() {
         val difficultyOptions = arrayOf("All", "Easy", "Medium", "Hard")
-        val categoryOptions = arrayOf("All", "Dairy", "Meat", "Chicken", "Desserts", "Asian")
+        val categoryOptions = arrayOf("All", "Dairy", "Meat", "Chicken", "Desserts", "Asian", "Italian", "Mexican", "Vegan", "Mediterranean", "Snacks")
 
         difficultySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, difficultyOptions)
         categorySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categoryOptions)
