@@ -18,7 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Title -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
@@ -31,7 +30,6 @@
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <!-- Email Field -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,7 +42,6 @@
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password Field -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,7 +54,6 @@
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Login Button -->
         <ImageView
             android:id="@+id/loginButton"
             android:layout_width="60dp"
@@ -67,7 +63,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"/>
 
-        <!-- Sign-up Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -86,5 +81,4 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

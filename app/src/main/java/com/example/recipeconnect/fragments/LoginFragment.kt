@@ -1,0 +1,59 @@
+package com.example.recipeconnect.fragments
+
+import android.os.Bundle
+import android.util.Patterns
+import android.view.*
+import android.widget.*
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.recipeconnect.R
+import com.google.firebase.auth.FirebaseAuth
+
+class LoginFragment : Fragment() {
+    private lateinit var auth: FirebaseAuth
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_login, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        auth = FirebaseAuth.getInstance()
+
+        val emailEditText = view.findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
+        val loginButton = view.findViewById<ImageView>(R.id.loginButton)
+        val signupButton = view.findViewById<Button>(R.id.signupButton)
+
+        loginButton.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailEditText.error = "Enter a valid email"
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                passwordEditText.error = "Password must be at least 6 characters"
+                return@setOnClickListener
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Login Successful!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_loginFragment_to_recipesHomeFragment)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Login Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        signupButton.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
+        }
+    }
+}

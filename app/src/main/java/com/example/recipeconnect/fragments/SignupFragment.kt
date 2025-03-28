@@ -1,18 +1,20 @@
-package com.example.recipeconnect.activities
+package com.example.recipeconnect.fragments
 
-import android.app.DatePickerDialog
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.*
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.recipeconnect.R
 import com.example.recipeconnect.models.User
-import com.example.recipeconnect.models.dao.UserImage
 import com.example.recipeconnect.models.dao.RecipeDatabase
-import com.bumptech.glide.Glide
+import com.example.recipeconnect.models.dao.UserImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -20,30 +22,40 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
-class SignupActivity : AppCompatActivity() {
+class SignupFragment : Fragment() {
+
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private var imageUri: Uri? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_signup)
+    private lateinit var profileImageView: ImageView
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_signup, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        val backButton: ImageView = findViewById(R.id.backButton)
-        val firstNameEditText: EditText = findViewById(R.id.firstNameEditText)
-        val lastNameEditText: EditText = findViewById(R.id.lastNameEditText)
-        val dobEditText: EditText = findViewById(R.id.dobEditText)
-        val emailEditText: EditText = findViewById(R.id.emailEditText)
-        val passwordEditText: EditText = findViewById(R.id.passwordEditText)
-        val bioEditText: EditText = findViewById(R.id.bioEditText)
-        val changeProfileImageButton: Button = findViewById(R.id.changeProfileImageButton)
-        val createAccountButton: Button = findViewById(R.id.createAccountButton)
+        val backButton = view.findViewById<ImageView>(R.id.backButton)
+        val firstNameEditText = view.findViewById<EditText>(R.id.firstNameEditText)
+        val lastNameEditText = view.findViewById<EditText>(R.id.lastNameEditText)
+        val dobEditText = view.findViewById<EditText>(R.id.dobEditText)
+        val emailEditText = view.findViewById<EditText>(R.id.emailEditText)
+        val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
+        val bioEditText = view.findViewById<EditText>(R.id.bioEditText)
+        val changeProfileImageButton = view.findViewById<Button>(R.id.changeProfileImageButton)
+        val createAccountButton = view.findViewById<Button>(R.id.createAccountButton)
+        profileImageView = view.findViewById(R.id.profileImageView)
 
         backButton.setOnClickListener {
-            onBackPressed()
+            findNavController().popBackStack()
         }
 
         changeProfileImageButton.setOnClickListener {
@@ -59,8 +71,8 @@ class SignupActivity : AppCompatActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-            val datePicker = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                dobEditText.setText("$selectedDay/${selectedMonth + 1}/$selectedYear")
+            val datePicker = DatePickerDialog(requireContext(), { _, y, m, d ->
+                dobEditText.setText("$d/${m + 1}/$y")
             }, year, month, day)
 
             datePicker.show()
@@ -75,7 +87,7 @@ class SignupActivity : AppCompatActivity() {
             val bio = bioEditText.text.toString().trim()
 
             if (firstName.isEmpty() || lastName.isEmpty() || dob.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -87,7 +99,7 @@ class SignupActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, "Signup failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Signup failed: ${it.message}", Toast.LENGTH_SHORT).show()
                 }
         }
     }
@@ -101,11 +113,11 @@ class SignupActivity : AppCompatActivity() {
         bio: String
     ) {
         if (imageUri != null) {
-            val imagePath = saveImageToInternalStorage(this, imageUri!!, "profile_$uid")
+            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
             val userImage = UserImage(uid = uid, imagePath = imagePath)
 
             lifecycleScope.launch {
-                val db = RecipeDatabase.getDatabase(applicationContext)
+                val db = RecipeDatabase.getDatabase(requireContext())
                 db.userImageDao().insert(userImage)
                 saveUserToFirestore(uid, firstName, lastName, dob, email, bio, null)
             }
@@ -136,12 +148,11 @@ class SignupActivity : AppCompatActivity() {
         firestore.collection("users").document(uid)
             .set(user)
             .addOnSuccessListener {
-                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
+                Toast.makeText(requireContext(), "Account created successfully!", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_signupFragment_to_recipesHomeFragment)
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error saving user", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error saving user", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -149,14 +160,13 @@ class SignupActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             imageUri = data?.data
-            val profileImageView = findViewById<ImageView>(R.id.profileImageView)
             Glide.with(this).load(imageUri).into(profileImageView)
         }
     }
 
-    private fun saveImageToInternalStorage(context: Activity, uri: Uri, fileName: String): String {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.filesDir, "$fileName.jpg")
+    private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val file = File(requireContext().filesDir, "$fileName.jpg")
         val outputStream = FileOutputStream(file)
         inputStream?.copyTo(outputStream)
         outputStream.close()

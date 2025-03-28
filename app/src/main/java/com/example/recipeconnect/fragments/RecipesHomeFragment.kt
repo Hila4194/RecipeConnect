@@ -1,13 +1,13 @@
-package com.example.recipeconnect.activities
+package com.example.recipeconnect.fragments
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.*
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipeconnect.R
@@ -18,31 +18,46 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class RecipesHomeActivity : AppCompatActivity() {
+class RecipesHomeFragment : Fragment() {
 
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var difficultySpinner: Spinner
     private lateinit var categorySpinner: Spinner
     private lateinit var scrollToTopButton: FloatingActionButton
+    private lateinit var welcomeTextView: TextView
     private lateinit var adapter: RecipeAdapter
 
     private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val recipeViewModel: RecipeViewModel by viewModels()
+
     private val fullRecipeList = mutableListOf<Recipe>()
 
-    private val recipeViewModel: RecipeViewModel by viewModels()
-    private val firestore = FirebaseFirestore.getInstance()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        setHasOptionsMenu(true)
+        return inflater.inflate(R.layout.fragment_recipes_home, container, false)
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_recipes_home)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Set the Toolbar
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        // Set up the toolbar as the ActionBar
+        val toolbar = view.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
 
-        val welcomeTextView: TextView = findViewById(R.id.welcomeTextView)
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        currentUser?.uid?.let { uid ->
+        // Init views
+        welcomeTextView = view.findViewById(R.id.welcomeTextView)
+        recipesRecyclerView = view.findViewById(R.id.recipesRecyclerView)
+        difficultySpinner = view.findViewById(R.id.difficultyFilterSpinner)
+        categorySpinner = view.findViewById(R.id.categoryFilterSpinner)
+        scrollToTopButton = view.findViewById(R.id.scrollToTopButton)
+
+        requireActivity().title = "All Recipes"
+
+        FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
             firestore.collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
                     val first = doc.getString("firstName") ?: ""
@@ -51,32 +66,22 @@ class RecipesHomeActivity : AppCompatActivity() {
                 }
         }
 
-        // Initialize views
-        recipesRecyclerView = findViewById(R.id.recipesRecyclerView)
-        difficultySpinner = findViewById(R.id.difficultyFilterSpinner)
-        categorySpinner = findViewById(R.id.categoryFilterSpinner)
-        scrollToTopButton = findViewById(R.id.scrollToTopButton)
-
-        recipesRecyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Prepare initial (empty) email map and adapter
+        recipesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val emailMap = mutableMapOf<String, String>()
 
-        adapter = RecipeAdapter(emptyList(), emailMap, this) { recipe ->
-            val intent = Intent(this, RecipeDetailActivity::class.java)
-            intent.putExtra("RECIPE_ID", recipe.id)
-            startActivity(intent)
+        adapter = RecipeAdapter(emptyList(), emailMap, requireContext()) { recipe ->
+            val action = RecipesHomeFragmentDirections
+                .actionRecipesHomeFragmentToRecipeDetailFragment(recipe.id)
+            findNavController().navigate(action)
         }
         recipesRecyclerView.adapter = adapter
 
-        // Observe recipes from ViewModel (Room DB)
-        recipeViewModel.allRecipes.observe(this, Observer { recipes ->
+        recipeViewModel.allRecipes.observe(viewLifecycleOwner, Observer { recipes ->
             fullRecipeList.clear()
             fullRecipeList.addAll(recipes)
             filterRecipes()
         })
 
-        // Load user emails from Firestore
         firestore.collection("users").get()
             .addOnSuccessListener { result ->
                 for (document in result) {
@@ -89,14 +94,13 @@ class RecipesHomeActivity : AppCompatActivity() {
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Failed to load user emails", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to load user emails", Toast.LENGTH_SHORT).show()
             }
 
-        // Set filter listeners
         setupSpinners()
 
         difficultySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 filterRecipes()
             }
 
@@ -104,21 +108,17 @@ class RecipesHomeActivity : AppCompatActivity() {
         }
 
         categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 filterRecipes()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Scroll-to-top button logic
         recipesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 10) {
-                    scrollToTopButton.show()
-                } else if (dy < -10) {
-                    scrollToTopButton.hide()
-                }
+                if (dy > 10) scrollToTopButton.show()
+                else if (dy < -10) scrollToTopButton.hide()
             }
         })
 
@@ -131,8 +131,8 @@ class RecipesHomeActivity : AppCompatActivity() {
         val difficultyOptions = arrayOf("All", "Easy", "Medium", "Hard")
         val categoryOptions = arrayOf("All", "Dairy", "Meat", "Chicken", "Desserts", "Asian")
 
-        difficultySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, difficultyOptions)
-        categorySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryOptions)
+        difficultySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, difficultyOptions)
+        categorySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categoryOptions)
     }
 
     private fun filterRecipes() {
@@ -148,31 +148,32 @@ class RecipesHomeActivity : AppCompatActivity() {
         adapter.updateRecipes(filteredList)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.recipe_home_menu, menu)
-        return true
+    override fun onResume() {
+        super.onResume()
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.recipe_home_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_profile -> {
-                startActivity(Intent(this, UserProfileActivity::class.java))
+                val action = RecipesHomeFragmentDirections.actionRecipesHomeFragmentToUserProfileFragment()
+                findNavController().navigate(action)
                 true
             }
 
             R.id.menu_logout -> {
                 auth.signOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.loginFragment)
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
-    override fun onResume() {
-        super.onResume()
-        adapter.notifyDataSetChanged()
     }
 }
