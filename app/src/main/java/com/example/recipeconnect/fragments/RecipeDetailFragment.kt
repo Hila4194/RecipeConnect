@@ -20,8 +20,9 @@ import kotlinx.coroutines.*
 
 class RecipeDetailFragment : Fragment() {
 
-    private val args: RecipeDetailFragmentArgs by navArgs()
+    private val args: RecipeDetailFragmentArgs by navArgs() // SafeArgs: get recipeId passed in navigation
 
+    // UI elements
     private lateinit var recipeImageView: ImageView
     private lateinit var titleTextView: TextView
     private lateinit var creatorTextView: TextView
@@ -33,10 +34,12 @@ class RecipeDetailFragment : Fragment() {
     private lateinit var caloriesSpinner: ProgressBar
     private lateinit var nutritionixAttribution: TextView
 
+    // ViewModel & Firebase instances
     private val recipeViewModel: RecipeViewModel by viewModels()
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Local Room DAO for favorites
     private val favoriteDao by lazy {
         RecipeDatabase.getDatabase(requireContext()).favoriteRecipeDao()
     }
@@ -52,12 +55,13 @@ class RecipeDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Toolbar back navigation
         val toolbar: androidx.appcompat.widget.Toolbar = view.findViewById(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Bind views
+        // Bind UI components
         recipeImageView = view.findViewById(R.id.recipeImageView)
         titleTextView = view.findViewById(R.id.recipeTitleTextView)
         creatorTextView = view.findViewById(R.id.recipeCreatorTextView)
@@ -70,7 +74,7 @@ class RecipeDetailFragment : Fragment() {
         nutritionixAttribution = view.findViewById(R.id.nutritionixAttributionTextView)
         nutritionixAttribution.visibility = View.GONE
 
-        // Calories Observer
+        // Observe Nutritionix calorie data
         recipeViewModel.nutritionLiveData.observe(viewLifecycleOwner) { foods ->
             caloriesSpinner.visibility = View.GONE
             nutritionixAttribution.visibility = View.VISIBLE
@@ -86,18 +90,21 @@ class RecipeDetailFragment : Fragment() {
             }
         }
 
+        // Load and show recipe details
         val recipeId = args.recipeId
         recipeViewModel.getRecipeById(recipeId) { recipe ->
             recipe?.let { showRecipeDetails(it) }
         }
     }
 
+    // Displays the full details of the selected recipe
     private fun showRecipeDetails(recipe: Recipe) {
         titleTextView.text = recipe.title
         prepTimeTextView.text = recipe.prepTime
         ingredientsTextView.text = recipe.ingredients.joinToString(", ")
         stepsTextView.text = recipe.steps
 
+        // Load image from local or URL with placeholder fallback
         Glide.with(this)
             .load(recipe.imageUrl)
             .placeholder(R.drawable.default_recipe)
@@ -108,11 +115,13 @@ class RecipeDetailFragment : Fragment() {
         fetchCreatorEmail(recipe.userId)
         updateLikeIcon(recipe.id)
 
+        // Request calorie info from Nutritionix
         val query = recipe.ingredients.joinToString(", ")
         caloriesSpinner.visibility = View.VISIBLE
         nutritionixAttribution.visibility = View.GONE
         recipeViewModel.fetchCalories(query)
 
+        // Toggle favorite (like) status on click
         likeIcon.setOnClickListener {
             val userId = auth.currentUser?.uid
             if (userId == null) {
@@ -125,10 +134,13 @@ class RecipeDetailFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 val isFavorite = favoriteDao.isFavorite(userId, recipe.id)
                 if (isFavorite) {
+                    // Remove from favorites
                     favoriteDao.removeFromFavorites(FavoriteRecipeEntity(recipeId = recipe.id, userId = userId))
                 } else {
+                    // Add to favorites
                     favoriteDao.addToFavorites(FavoriteRecipeEntity(recipeId = recipe.id, userId = userId))
                 }
+                // Refresh like icon on UI thread
                 withContext(Dispatchers.Main) {
                     updateLikeIcon(recipe.id)
                 }
@@ -136,6 +148,7 @@ class RecipeDetailFragment : Fragment() {
         }
     }
 
+    // Update like icon (filled vs outline) depending on favorite status
     private fun updateLikeIcon(recipeId: String) {
         val userId = auth.currentUser?.uid ?: return
         CoroutineScope(Dispatchers.IO).launch {
@@ -149,6 +162,7 @@ class RecipeDetailFragment : Fragment() {
         }
     }
 
+    // Get the recipe creator's email from Firestore
     private fun fetchCreatorEmail(userId: String) {
         db.collection("users")
             .whereEqualTo("uid", userId)

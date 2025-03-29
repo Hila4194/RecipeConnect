@@ -8,7 +8,7 @@
     android:background="@color/light_blue"
     android:padding="24dp">
 
-    <!-- Card containing the login form -->
+    <!-- Card containing the entire login form -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/loginCard"
         android:layout_width="0dp"
@@ -22,14 +22,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-    <LinearLayout
+        <!-- Vertical layout for form elements -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp"
             android:gravity="center_horizontal">
 
-            <!-- Title -->
+            <!-- Login screen title -->
             <TextView
                 android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
@@ -38,36 +39,38 @@
                 android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp" />
 
-            <!-- Email -->
+            <!-- Email input field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email Address"
                 android:layout_marginBottom="12dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/emailEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"/>
+                    android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Password -->
+            <!-- Password input field with toggle visibility -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:layout_marginBottom="20dp"
                 app:endIconMode="password_toggle">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/passwordEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPassword"/>
+                    android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Login Button -->
+            <!-- Login button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginButton"
                 android:layout_width="match_parent"
@@ -77,18 +80,18 @@
                 android:textColor="@android:color/white"
                 android:backgroundTint="@color/purple_700"
                 app:cornerRadius="16dp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp" />
 
-            <!-- Sign up prompt -->
+            <!-- Text prompt for users who don’t have an account -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Not registered yet?"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="8dp" />
 
-            <!-- Sign up Button -->
+            <!-- Button to navigate to sign-up screen -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/signupButton"
                 android:layout_width="wrap_content"
@@ -97,11 +100,11 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:backgroundTint="@color/purple_700"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="20dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Spinner -->
+    <!-- Spinner shown during login process -->
     <ProgressBar
         android:id="@+id/loginProgressBar"
         android:layout_width="64dp"
@@ -112,5 +115,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        style="?android:attr/progressBarStyleLarge"/>
+        style="?android:attr/progressBarStyleLarge" />
 </androidx.constraintlayout.widget.ConstraintLayout>

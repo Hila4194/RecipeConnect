@@ -4,9 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -19,13 +17,13 @@ import java.util.*
 import kotlinx.coroutines.*
 
 class MyRecipeAdapter(
-    private var recipes: List<Recipe>,
-    private val context: Context,
-    private val onDeleteClick: (Recipe) -> Unit,
-    private val onEditClick: (Recipe) -> Unit,
-    private val onItemClick: (Recipe) -> Unit,
-    private val isEditable: Boolean = true, // Default is editable
-    private val isFavorite: Boolean = false // Flag to determine if the item is in FavoriteRecipes
+    private var recipes: List<Recipe>,                    // List of recipes to display
+    private val context: Context,                         // Context needed for Glide and contentResolver
+    private val onDeleteClick: (Recipe) -> Unit,          // Callback for delete action
+    private val onEditClick: (Recipe) -> Unit,            // Callback for edit action
+    private val onItemClick: (Recipe) -> Unit,            // Callback for clicking an item (used in favorites)
+    private val isEditable: Boolean = true,               // Determines if edit/delete options are shown
+    private val isFavorite: Boolean = false               // Indicates if this is the favorites list
 ) : RecyclerView.Adapter<MyRecipeAdapter.MyRecipeViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyRecipeViewHolder {
@@ -54,22 +52,25 @@ class MyRecipeAdapter(
         fun bind(recipe: Recipe) {
             titleTextView.text = recipe.title
 
-            // Handle image loading
             val imagePath = recipe.imageUrl
             Log.d("MyRecipeAdapter", "Image path: $imagePath")
 
+            // Load image from content URI or file path
             if (!imagePath.isNullOrEmpty()) {
                 if (imagePath.startsWith("content://")) {
+                    // Image selected from gallery (content URI)
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             val uri = Uri.parse(imagePath)
                             val fileName = UUID.randomUUID().toString() + ".jpg"
                             val destFile = File(context.cacheDir, fileName)
+
                             context.contentResolver.openInputStream(uri)?.use { input ->
                                 FileOutputStream(destFile).use { output ->
                                     input.copyTo(output)
                                 }
                             }
+
                             withContext(Dispatchers.Main) {
                                 Glide.with(context)
                                     .load(destFile)
@@ -84,6 +85,7 @@ class MyRecipeAdapter(
                         }
                     }
                 } else {
+                    // Image saved locally with file path
                     Glide.with(context)
                         .load(File(imagePath))
                         .placeholder(R.drawable.default_recipe)
@@ -95,34 +97,38 @@ class MyRecipeAdapter(
                 recipeImageView.setImageResource(R.drawable.default_recipe)
             }
 
-            // Handle item click for Favorite Recipes
+            // Favorite mode: allow item click (open details)
             if (isFavorite) {
-                itemView.setOnClickListener { onItemClick(recipe) } // Recipe item is clickable in Favorite Recipes
+                itemView.setOnClickListener { onItemClick(recipe) }
             } else {
-                // In My Recipes, disable click on the item
+                // In "My Recipes" mode, item itself is not clickable
                 recipeImageView.isClickable = false
                 recipeImageView.isFocusable = false
                 titleTextView.isClickable = false
                 titleTextView.isFocusable = false
             }
 
-            // Edit and delete icons are only shown in editable mode (My Recipes)
+            // Handle edit/delete icons
             if (isEditable) {
                 editIcon.visibility = View.VISIBLE
                 deleteIcon.visibility = View.VISIBLE
 
-                editIcon.setOnClickListener { onEditClick(recipe) }
+                editIcon.setOnClickListener {
+                    onEditClick(recipe)
+                }
 
                 deleteIcon.setOnClickListener {
                     AlertDialog.Builder(context)
                         .setTitle("Delete Recipe")
                         .setMessage("Are you sure you want to delete this recipe?")
-                        .setPositiveButton("Yes") { _, _ -> onDeleteClick(recipe) }
+                        .setPositiveButton("Yes") { _, _ ->
+                            onDeleteClick(recipe)
+                        }
                         .setNegativeButton("No", null)
                         .show()
                 }
             } else {
-                // Hide edit/delete icons for Favorite Recipes
+                // In favorites mode, hide icons
                 editIcon.visibility = View.GONE
                 deleteIcon.visibility = View.GONE
             }

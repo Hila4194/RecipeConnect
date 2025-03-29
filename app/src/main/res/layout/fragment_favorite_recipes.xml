@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Custom Toolbar -->
+        <!-- Custom Toolbar with centered title and back button -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -22,6 +22,7 @@
             app:title="Favorite Recipes"
             app:titleTextColor="@android:color/white">
 
+            <!-- Manual center title (override default alignment) -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -39,16 +40,16 @@
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- RecyclerView for displaying favorite recipes -->
+        <!-- List of user's favorite recipes -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/favoriteRecipesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:paddingBottom="16dp"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp" />
 
-        <!-- Empty state message when no favorite recipes -->
+        <!-- Shown when user has no favorites -->
         <TextView
             android:id="@+id/emptyStateTextView"
             android:layout_width="wrap_content"
@@ -60,6 +61,5 @@
             android:visibility="gone"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"/>
-
     </LinearLayout>
 </ScrollView>

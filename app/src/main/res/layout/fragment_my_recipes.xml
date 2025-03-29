@@ -9,11 +9,12 @@
     android:padding="16dp"
     tools:context=".fragments.MyRecipesFragment">
 
+    <!-- Main container for all content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Custom Toolbar -->
+        <!-- Toolbar with back navigation and centered title -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -26,6 +27,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <!-- Centered toolbar title inside the toolbar -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -43,7 +45,7 @@
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- Add Recipe Button -->
+        <!-- Button to add a new recipe -->
         <Button
             android:id="@+id/addRecipeButton"
             android:layout_width="match_parent"
@@ -56,7 +58,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- RecyclerView for displaying recipes -->
+        <!-- RecyclerView that displays the user's recipes -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/myRecipesRecyclerView"
             android:layout_width="0dp"
@@ -68,7 +70,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Empty State TextView -->
+        <!-- TextView shown when user has no recipes -->
         <TextView
             android:id="@+id/emptyStateTextView"
             android:layout_width="wrap_content"
@@ -84,7 +86,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Floating Scroll-To-Top Button -->
+    <!-- Floating Action Button to scroll to top -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scrollToTopButton"
         android:layout_width="wrap_content"

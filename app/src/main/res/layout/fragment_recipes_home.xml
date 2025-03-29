@@ -8,11 +8,12 @@
     android:background="@color/light_blue"
     android:padding="16dp">
 
+    <!-- Root constraint layout to position toolbar, filters, RecyclerView -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Toolbar -->
+        <!-- App toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -25,7 +26,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Welcome Message -->
+        <!-- Welcome text that shows user's name -->
         <TextView
             android:id="@+id/welcomeTextView"
             android:layout_width="wrap_content"
@@ -40,7 +41,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Hi, John Doe 👋" />
 
-        <!-- Filters Container -->
+        <!-- Container for both difficulty and category filter spinners -->
         <LinearLayout
             android:id="@+id/filterContainer"
             android:layout_width="0dp"
@@ -55,7 +56,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Difficulty Filter -->
+            <!-- Difficulty spinner and label -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,7 +80,7 @@
                     android:padding="4dp" />
             </LinearLayout>
 
-            <!-- Category Filter -->
+            <!-- Category spinner and label -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +106,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- RecyclerView -->
+        <!-- RecyclerView displaying filtered list of recipes -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recipesRecyclerView"
             android:layout_width="match_parent"
@@ -119,9 +120,24 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_recipe" />
 
+        <!-- Message shown when no recipes match the filters -->
+        <TextView
+            android:id="@+id/noResultsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No recipes match your filters"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@id/recipesRecyclerView"
+            app:layout_constraintBottom_toBottomOf="@id/recipesRecyclerView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Floating Action Button -->
+    <!-- Floating Action Button to scroll the list to the top -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/scrollToTopButton"
         android:layout_width="wrap_content"

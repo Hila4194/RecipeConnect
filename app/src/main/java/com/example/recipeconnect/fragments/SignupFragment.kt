@@ -29,6 +29,7 @@ import java.util.*
 
 class SignupFragment : Fragment() {
 
+    // Firebase and imageUri reference
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private var imageUri: Uri? = null
@@ -48,6 +49,7 @@ class SignupFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
+        // View references
         val backButton = view.findViewById<ImageView>(R.id.backButton)
         val firstNameEditText = view.findViewById<EditText>(R.id.firstNameEditText)
         val lastNameEditText = view.findViewById<EditText>(R.id.lastNameEditText)
@@ -61,10 +63,12 @@ class SignupFragment : Fragment() {
         val createAccountButton = view.findViewById<Button>(R.id.createAccountButton)
         profileImageView = view.findViewById(R.id.profileImageView)
 
+        // Back navigation
         backButton.setOnClickListener {
             findNavController().popBackStack()
         }
 
+        // Select profile image
         changeProfileImageButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.type = "image/*"
@@ -72,6 +76,7 @@ class SignupFragment : Fragment() {
             startActivityForResult(intent, 100)
         }
 
+        // Show date picker for DOB
         dobEditText.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select Date of Birth")
@@ -86,6 +91,7 @@ class SignupFragment : Fragment() {
             }
         }
 
+        // Password strength indicator
         passwordEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val password = s.toString()
@@ -98,6 +104,7 @@ class SignupFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
+        // Create account button logic
         createAccountButton.setOnClickListener {
             val firstName = firstNameEditText.text.toString().trim()
             val lastName = lastNameEditText.text.toString().trim()
@@ -106,7 +113,7 @@ class SignupFragment : Fragment() {
             val password = passwordEditText.text.toString().trim()
             val bio = bioEditText.text.toString().trim()
 
-            // Inline validation
+            // Validate inputs
             when {
                 firstName.isEmpty() -> {
                     firstNameEditText.error = "First name required"
@@ -144,6 +151,7 @@ class SignupFragment : Fragment() {
                 }
             }
 
+            // Register user with Firebase
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { result ->
                     val uid = result.user?.uid
@@ -157,6 +165,7 @@ class SignupFragment : Fragment() {
         }
     }
 
+    // Simple password strength calculator
     private fun calculatePasswordStrength(password: String): Pair<String, Int> {
         return when {
             password.length < 6 -> "Weak" to 25
@@ -166,6 +175,7 @@ class SignupFragment : Fragment() {
         }
     }
 
+    // Save image locally in ROOM and then continue user creation
     private fun saveProfileImageLocallyAndContinue(
         uid: String,
         firstName: String,
@@ -188,6 +198,7 @@ class SignupFragment : Fragment() {
         }
     }
 
+    // Save user info to Firestore (excluding password)
     private fun saveUserToFirestore(
         uid: String,
         firstName: String,
@@ -218,6 +229,7 @@ class SignupFragment : Fragment() {
             }
     }
 
+    // Handle result of image picker
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
@@ -226,6 +238,7 @@ class SignupFragment : Fragment() {
         }
     }
 
+    // Save selected profile image to internal app storage
     private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
         val inputStream = requireContext().contentResolver.openInputStream(uri)
         val file = File(requireContext().filesDir, "$fileName.jpg")

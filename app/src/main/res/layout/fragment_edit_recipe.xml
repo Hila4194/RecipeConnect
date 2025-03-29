@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Scrollable container for the edit form -->
     <ScrollView
         android:id="@+id/editRecipeScrollView"
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Toolbar -->
+            <!-- Toolbar with center-aligned title and back button -->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -25,6 +26,7 @@
                 android:background="@color/purple_700"
                 app:navigationIcon="@drawable/baseline_arrow_back">
 
+                <!-- Centered title inside toolbar -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
@@ -42,7 +44,7 @@
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
 
-            <!-- Recipe Image -->
+            <!-- Recipe image preview -->
             <ImageView
                 android:id="@+id/recipeImageView"
                 android:layout_width="match_parent"
@@ -53,6 +55,7 @@
                 android:contentDescription="Recipe Image"
                 android:src="@drawable/default_recipe" />
 
+            <!-- Button to select new image -->
             <Button
                 android:id="@+id/selectImageButton"
                 android:layout_width="wrap_content"
@@ -61,12 +64,13 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp" />
 
-            <!-- Recipe Title -->
+            <!-- Title input field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Recipe Title"
                 android:layout_marginTop="16dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/recipeTitleEditText"
                     android:layout_width="match_parent"
@@ -74,12 +78,13 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Preparation Time -->
+            <!-- Preparation time input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Preparation Time (e.g. 30 minutes)"
                 android:layout_marginTop="12dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/prepTimeEditText"
                     android:layout_width="match_parent"
@@ -87,36 +92,39 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Difficulty Spinner -->
+            <!-- Difficulty selection -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Difficulty Level"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp" />
+
             <Spinner
                 android:id="@+id/difficultySpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Category Spinner -->
+            <!-- Category selection -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Category"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp" />
+
             <Spinner
                 android:id="@+id/categorySpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Ingredients -->
+            <!-- Ingredients input field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Ingredients (comma-separated)"
                 android:layout_marginTop="16dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/ingredientsEditText"
                     android:layout_width="match_parent"
@@ -126,12 +134,13 @@
                     android:maxLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Steps -->
+            <!-- Step-by-step instructions input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Step-by-step Instructions"
                 android:layout_marginTop="16dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/stepsEditText"
                     android:layout_width="match_parent"
@@ -141,7 +150,7 @@
                     android:maxLines="8" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Save Button -->
+            <!-- Save/Update button -->
             <Button
                 android:id="@+id/saveRecipeButton"
                 android:layout_width="match_parent"
@@ -154,7 +163,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Spinner shown during update -->
+    <!-- Full-screen loading spinner during recipe update -->
     <ProgressBar
         android:id="@+id/editProgressBar"
         android:layout_width="64dp"
