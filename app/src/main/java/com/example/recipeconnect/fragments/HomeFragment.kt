@@ -32,22 +32,22 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val logoImage = view.findViewById<ImageView>(R.id.logoImageView)
-        val startButton = view.findViewById<Button>(R.id.startButton)
+        // Animate logo fade-in
+        val logo = view.findViewById<ImageView>(R.id.logoImageView)
+        val button = view.findViewById<Button>(R.id.startButton)
 
-        // Logo fade-in animation
-        val fadeIn = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
-        logoImage.startAnimation(fadeIn)
+        logo.alpha = 0f
+        logo.animate().alpha(1f).setDuration(1000).start()
 
-        // Button pulse animation
-        val pulse = AnimationUtils.loadAnimation(requireContext(), R.anim.scale)
-        startButton.setOnTouchListener { v, event ->
-            v.startAnimation(pulse)
+        // Button press animation
+        button.setOnTouchListener { v, _ ->
+            v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction {
+                v.animate().scaleX(1f).scaleY(1f).duration = 100
+            }
             false
         }
 
-        // Navigation
-        startButton.setOnClickListener {
+        button.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
         }
     }

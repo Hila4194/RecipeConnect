@@ -27,10 +27,10 @@ class LoginFragment : Fragment() {
 
         val emailEditText = view.findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = view.findViewById<ImageView>(R.id.loginButton)
+        val loginButton = view.findViewById<Button>(R.id.loginButton)
         val signupButton = view.findViewById<Button>(R.id.signupButton)
         val progressBar = view.findViewById<ProgressBar>(R.id.loginProgressBar)
-        val loginForm = view.findViewById<LinearLayout>(R.id.loginForm)
+        val loginForm = view.findViewById<View>(R.id.loginCard)
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -63,13 +63,17 @@ class LoginFragment : Fragment() {
                 .addOnSuccessListener {
                     progressBar.visibility = View.GONE
                     loginForm.alpha = 1f
-                    Snackbar.make(requireView(), "Login Successful!", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Login successful!", Snackbar.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_recipesHomeFragment)
                 }
                 .addOnFailureListener {
                     progressBar.visibility = View.GONE
                     loginForm.alpha = 1f
-                    Snackbar.make(requireView(), "Login Failed: ${it.message}", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                        requireView(),
+                        "Login failed: ${it.message}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
         }
 
