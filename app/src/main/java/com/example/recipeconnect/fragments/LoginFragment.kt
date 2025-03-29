@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
@@ -51,13 +52,13 @@ class LoginFragment : Fragment() {
                 .addOnSuccessListener {
                     progressBar.visibility = View.GONE
                     loginForm.alpha = 1f
-                    Toast.makeText(requireContext(), "Login Successful!", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Login Successful!", Snackbar.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_recipesHomeFragment)
                 }
                 .addOnFailureListener {
                     progressBar.visibility = View.GONE
                     loginForm.alpha = 1f
-                    Toast.makeText(requireContext(), "Login Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Login Failed: ${it.message}", Snackbar.LENGTH_SHORT).show()
                 }
         }
 

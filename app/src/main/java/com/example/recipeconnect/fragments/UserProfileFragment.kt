@@ -11,6 +11,7 @@ import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.User
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.utils.CircleTransform
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
@@ -93,7 +94,9 @@ class UserProfileFragment : BaseFragment() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Failed to load profile", Snackbar.LENGTH_SHORT)
+                    .setAnchorView(editProfileButton)
+                    .show()
             }
 
         lifecycleScope.launch {

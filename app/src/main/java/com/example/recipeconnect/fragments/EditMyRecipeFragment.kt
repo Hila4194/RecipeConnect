@@ -16,6 +16,7 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import java.io.FileOutputStream
@@ -123,7 +124,7 @@ class EditMyRecipeFragment : BaseFragment() {
         val category = categorySpinner.selectedItem.toString()
 
         if (title.isEmpty() || prepTime.isEmpty() || steps.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), "Please fill in all fields", Snackbar.LENGTH_SHORT).show()
             return
         }
 
@@ -153,7 +154,7 @@ class EditMyRecipeFragment : BaseFragment() {
         progressBar.visibility = View.GONE
         scrollView.alpha = 1f
 
-        Toast.makeText(requireContext(), "Recipe updated!", Toast.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), "Recipe updated!", Snackbar.LENGTH_SHORT).show()
         findNavController().navigateUp()
     }
 

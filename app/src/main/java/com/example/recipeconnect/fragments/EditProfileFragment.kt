@@ -15,6 +15,7 @@ import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.UserImage
 import com.example.recipeconnect.utils.CircleTransform
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -87,7 +88,7 @@ class EditProfileFragment : BaseFragment() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Failed to load profile", Snackbar.LENGTH_SHORT).show()
             }
 
         lifecycleScope.launch {
@@ -141,13 +142,13 @@ class EditProfileFragment : BaseFragment() {
                 .addOnSuccessListener {
                     progressBar.visibility = View.GONE
                     scrollView.alpha = 1f
-                    Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Profile updated!", Snackbar.LENGTH_SHORT).show()
                     findNavController().navigateUp()
                 }
                 .addOnFailureListener {
                     progressBar.visibility = View.GONE
                     scrollView.alpha = 1f
-                    Toast.makeText(requireContext(), "Error saving profile", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Error saving profile", Snackbar.LENGTH_SHORT).show()
                 }
         }
     }

@@ -15,6 +15,7 @@ import com.example.recipeconnect.adapters.RecipeAdapter
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -94,7 +95,9 @@ class RecipesHomeFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load user emails", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Failed to load user emails", Snackbar.LENGTH_SHORT)
+                    .setAnchorView(scrollToTopButton)
+                    .show()
             }
 
         setupSpinners()
@@ -168,7 +171,9 @@ class RecipesHomeFragment : Fragment() {
 
             R.id.menu_logout -> {
                 auth.signOut()
-                Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Logged out", Snackbar.LENGTH_SHORT)
+                    .setAnchorView(scrollToTopButton)
+                    .show()
                 findNavController().navigate(R.id.loginFragment)
                 true
             }
