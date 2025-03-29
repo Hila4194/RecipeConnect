@@ -28,7 +28,7 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Rounded Profile Image -->
+            <!-- Profile Image -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profileImageView"
                 android:layout_width="120dp"
@@ -126,6 +126,25 @@
                     android:imeOptions="actionNext"
                     android:autofillHints="password" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Password Strength -->
+            <TextView
+                android:id="@+id/passwordStrengthText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password Strength"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="4dp" />
+
+            <ProgressBar
+                android:id="@+id/passwordStrengthBar"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:progress="0"
+                android:max="100"
+                android:layout_marginBottom="12dp"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
             <!-- Bio -->
             <com.google.android.material.textfield.TextInputLayout

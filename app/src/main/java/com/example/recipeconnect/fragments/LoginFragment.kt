@@ -36,8 +36,19 @@ class LoginFragment : Fragment() {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
+            emailEditText.error = null
+            passwordEditText.error = null
+
+            if (email.isEmpty()) {
+                emailEditText.error = "Email is required"
+                return@setOnClickListener
+            }
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 emailEditText.error = "Enter a valid email"
+                return@setOnClickListener
+            }
+            if (password.isEmpty()) {
+                passwordEditText.error = "Password is required"
                 return@setOnClickListener
             }
             if (password.length < 6) {
@@ -58,7 +69,7 @@ class LoginFragment : Fragment() {
                 .addOnFailureListener {
                     progressBar.visibility = View.GONE
                     loginForm.alpha = 1f
-                    Snackbar.make(requireView(), "Login Failed: ${it.message}", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Login Failed: ${it.message}", Snackbar.LENGTH_LONG).show()
                 }
         }
 

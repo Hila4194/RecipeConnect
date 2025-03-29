@@ -39,9 +39,7 @@ class EditProfileFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
-    }
+    ): View = inflater.inflate(R.layout.fragment_edit_profile, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,7 +68,6 @@ class EditProfileFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        // Only reload profile if no image is being previewed
         if (imageUri == null) {
             loadUserProfile()
         }
@@ -115,6 +112,12 @@ class EditProfileFragment : BaseFragment() {
         val firstName = firstNameEditText.text.toString().trim()
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
+
+        // Validation
+        if (firstName.isEmpty() || lastName.isEmpty()) {
+            Snackbar.make(requireView(), "First and Last name are required", Snackbar.LENGTH_SHORT).show()
+            return
+        }
 
         val scrollView = requireView().findViewById<ScrollView>(R.id.editProfileScrollView)
         val progressBar = requireView().findViewById<ProgressBar>(R.id.editProfileProgressBar)
