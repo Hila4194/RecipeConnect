@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
@@ -26,15 +27,28 @@ class LoginFragment : Fragment() {
 
         val emailEditText = view.findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = view.findViewById<ImageView>(R.id.loginButton)
+        val loginButton = view.findViewById<Button>(R.id.loginButton)
         val signupButton = view.findViewById<Button>(R.id.signupButton)
+        val progressBar = view.findViewById<ProgressBar>(R.id.loginProgressBar)
+        val loginForm = view.findViewById<View>(R.id.loginCard)
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
+            emailEditText.error = null
+            passwordEditText.error = null
+
+            if (email.isEmpty()) {
+                emailEditText.error = "Email is required"
+                return@setOnClickListener
+            }
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 emailEditText.error = "Enter a valid email"
+                return@setOnClickListener
+            }
+            if (password.isEmpty()) {
+                passwordEditText.error = "Password is required"
                 return@setOnClickListener
             }
             if (password.length < 6) {
@@ -42,13 +56,24 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            progressBar.visibility = View.VISIBLE
+            loginForm.alpha = 0.5f
+
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Login Successful!", Toast.LENGTH_SHORT).show()
+                    progressBar.visibility = View.GONE
+                    loginForm.alpha = 1f
+                    Snackbar.make(requireView(), "Login successful!", Snackbar.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_recipesHomeFragment)
                 }
                 .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Login Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                    progressBar.visibility = View.GONE
+                    loginForm.alpha = 1f
+                    Snackbar.make(
+                        requireView(),
+                        "Login failed: ${it.message}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
         }
 

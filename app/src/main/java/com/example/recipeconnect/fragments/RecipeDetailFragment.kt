@@ -13,6 +13,7 @@ import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.models.dao.FavoriteRecipeEntity
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.viewmodels.RecipeViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
@@ -115,7 +116,9 @@ class RecipeDetailFragment : Fragment() {
         likeIcon.setOnClickListener {
             val userId = auth.currentUser?.uid
             if (userId == null) {
-                Toast.makeText(requireContext(), "You must be logged in", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "You must be logged in", Snackbar.LENGTH_SHORT)
+                    .setAnchorView(likeIcon)
+                    .show()
                 return@setOnClickListener
             }
 

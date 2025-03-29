@@ -16,6 +16,7 @@ import com.example.recipeconnect.R
 import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.Recipe
 import com.example.recipeconnect.viewmodels.RecipeViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
 import java.io.FileOutputStream
@@ -51,14 +52,13 @@ class EditMyRecipeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Init views
+        // Initialize views
         recipeImageView = view.findViewById(R.id.recipeImageView)
         selectImageButton = view.findViewById(R.id.selectImageButton)
         recipeTitleEditText = view.findViewById(R.id.recipeTitleEditText)
@@ -113,6 +113,9 @@ class EditMyRecipeFragment : BaseFragment() {
     }
 
     private fun updateRecipe() {
+        val scrollView = requireView().findViewById<ScrollView>(R.id.editRecipeScrollView)
+        val progressBar = requireView().findViewById<ProgressBar>(R.id.editProgressBar)
+
         val title = recipeTitleEditText.text.toString().trim()
         val prepTime = prepTimeEditText.text.toString().trim()
         val ingredients = ingredientsEditText.text.toString().split(",").map { it.trim() }
@@ -121,9 +124,12 @@ class EditMyRecipeFragment : BaseFragment() {
         val category = categorySpinner.selectedItem.toString()
 
         if (title.isEmpty() || prepTime.isEmpty() || steps.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            Snackbar.make(requireView(), "Please fill in all fields", Snackbar.LENGTH_SHORT).show()
             return
         }
+
+        progressBar.visibility = View.VISIBLE
+        scrollView.alpha = 0.5f
 
         val imageUrl = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
@@ -145,7 +151,10 @@ class EditMyRecipeFragment : BaseFragment() {
 
         recipeViewModel.insert(updatedRecipe)
 
-        Toast.makeText(requireContext(), "Recipe updated!", Toast.LENGTH_SHORT).show()
+        progressBar.visibility = View.GONE
+        scrollView.alpha = 1f
+
+        Snackbar.make(requireView(), "Recipe updated!", Snackbar.LENGTH_SHORT).show()
         findNavController().navigateUp()
     }
 

@@ -2,10 +2,10 @@ package com.example.recipeconnect.base
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 abstract class BaseFragment : Fragment() {
@@ -32,7 +32,7 @@ abstract class BaseFragment : Fragment() {
 
     private fun logoutUser() {
         FirebaseAuth.getInstance().signOut()
-        Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), "Logged out", Snackbar.LENGTH_SHORT).show()
         findNavController().navigate(R.id.loginFragment)
     }
 }

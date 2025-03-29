@@ -15,6 +15,7 @@ import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.dao.RecipeDatabase
 import com.example.recipeconnect.models.dao.UserImage
 import com.example.recipeconnect.utils.CircleTransform
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -38,14 +39,11 @@ class EditProfileFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
-    }
+    ): View = inflater.inflate(R.layout.fragment_edit_profile, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
@@ -59,14 +57,19 @@ class EditProfileFragment : BaseFragment() {
         saveButton = view.findViewById(R.id.saveProfileButton)
         val changeImageButton = view.findViewById<Button>(R.id.changeProfileImageButton)
 
-        loadUserProfile()
-
         changeImageButton.setOnClickListener {
             selectImageFromGallery()
         }
 
         saveButton.setOnClickListener {
             saveUserProfile()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (imageUri == null) {
+            loadUserProfile()
         }
     }
 
@@ -82,7 +85,7 @@ class EditProfileFragment : BaseFragment() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Failed to load profile", Snackbar.LENGTH_SHORT).show()
             }
 
         lifecycleScope.launch {
@@ -93,6 +96,7 @@ class EditProfileFragment : BaseFragment() {
                 Picasso.get()
                     .load(file)
                     .transform(CircleTransform())
+                    .memoryPolicy(com.squareup.picasso.MemoryPolicy.NO_CACHE, com.squareup.picasso.MemoryPolicy.NO_STORE)
                     .into(profileImageView)
             } else {
                 Picasso.get()
@@ -109,31 +113,47 @@ class EditProfileFragment : BaseFragment() {
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        if (imageUri != null) {
-            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
-            val userImage = UserImage(uid = uid, imagePath = imagePath)
-
-            lifecycleScope.launch {
-                val db = RecipeDatabase.getDatabase(requireContext())
-                db.userImageDao().insert(userImage)
-            }
+        // Validation
+        if (firstName.isEmpty() || lastName.isEmpty()) {
+            Snackbar.make(requireView(), "First and Last name are required", Snackbar.LENGTH_SHORT).show()
+            return
         }
 
-        val userData = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "bio" to bio
-        )
+        val scrollView = requireView().findViewById<ScrollView>(R.id.editProfileScrollView)
+        val progressBar = requireView().findViewById<ProgressBar>(R.id.editProfileProgressBar)
 
-        firestore.collection("users").document(uid)
-            .set(userData, SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
+        progressBar.visibility = View.VISIBLE
+        scrollView.alpha = 0.5f
+
+        lifecycleScope.launch {
+            val db = RecipeDatabase.getDatabase(requireContext())
+
+            if (imageUri != null) {
+                val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
+                val userImage = UserImage(uid = uid, imagePath = imagePath)
+                db.userImageDao().insert(userImage)
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Error saving profile", Toast.LENGTH_SHORT).show()
-            }
+
+            val userData = mapOf(
+                "firstName" to firstName,
+                "lastName" to lastName,
+                "bio" to bio
+            )
+
+            firestore.collection("users").document(uid)
+                .set(userData, SetOptions.merge())
+                .addOnSuccessListener {
+                    progressBar.visibility = View.GONE
+                    scrollView.alpha = 1f
+                    Snackbar.make(requireView(), "Profile updated!", Snackbar.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    scrollView.alpha = 1f
+                    Snackbar.make(requireView(), "Error saving profile", Snackbar.LENGTH_SHORT).show()
+                }
+        }
     }
 
     private fun selectImageFromGallery() {
@@ -147,7 +167,9 @@ class EditProfileFragment : BaseFragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             imageUri = data?.data
-            profileImageView.setImageURI(imageUri)
+            imageUri?.let {
+                profileImageView.setImageURI(it)
+            }
         }
     }
 
