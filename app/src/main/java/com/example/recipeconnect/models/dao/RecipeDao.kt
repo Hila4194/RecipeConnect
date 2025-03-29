@@ -24,4 +24,10 @@ interface RecipeDao {
 
     @Query("DELETE FROM recipes")
     suspend fun deleteAllRecipes()
+
+    @Query("DELETE FROM recipes WHERE userId = :userId")
+    suspend fun deleteRecipesByUserId(userId: String)
+
+    @Query("SELECT DISTINCT userId FROM recipes")
+    suspend fun getAllRecipeUserIds(): List<String>
 }

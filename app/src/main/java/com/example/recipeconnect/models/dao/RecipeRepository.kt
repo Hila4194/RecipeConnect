@@ -22,4 +22,12 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     suspend fun deleteAll() {
         recipeDao.deleteAllRecipes()
     }
+
+    suspend fun deleteRecipesByUserId(userId: String) {
+        recipeDao.deleteRecipesByUserId(userId)
+    }
+
+    suspend fun getAllRecipeUserIds(): List<String> {
+        return recipeDao.getAllRecipeUserIds()
+    }
 }

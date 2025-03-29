@@ -75,4 +75,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
     }
+
+    fun deleteRecipesByUserId(userId: String) = viewModelScope.launch {
+        recipeRepository.deleteRecipesByUserId(userId)
+    }
+
+    fun getAllRecipeUserIds(callback: (List<String>) -> Unit) = viewModelScope.launch {
+        val ids = recipeRepository.getAllRecipeUserIds()
+        callback(ids)
+    }
 }

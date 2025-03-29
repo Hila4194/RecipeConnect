@@ -45,11 +45,9 @@ class RecipesHomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up the toolbar as the ActionBar
         val toolbar = view.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
 
-        // Init views
         welcomeTextView = view.findViewById(R.id.welcomeTextView)
         recipesRecyclerView = view.findViewById(R.id.recipesRecyclerView)
         difficultySpinner = view.findViewById(R.id.difficultyFilterSpinner)
@@ -58,7 +56,7 @@ class RecipesHomeFragment : Fragment() {
 
         requireActivity().title = "All Recipes"
 
-        FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+        auth.currentUser?.uid?.let { uid ->
             firestore.collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
                     val first = doc.getString("firstName") ?: ""
@@ -127,6 +125,18 @@ class RecipesHomeFragment : Fragment() {
 
         scrollToTopButton.setOnClickListener {
             recipesRecyclerView.smoothScrollToPosition(0)
+        }
+
+        // 🔥 Check and delete recipes by deleted users
+        recipeViewModel.getAllRecipeUserIds { userIds ->
+            userIds.forEach { uid ->
+                firestore.collection("users").document(uid).get()
+                    .addOnSuccessListener { doc ->
+                        if (!doc.exists()) {
+                            recipeViewModel.deleteRecipesByUserId(uid)
+                        }
+                    }
+            }
         }
     }
 
