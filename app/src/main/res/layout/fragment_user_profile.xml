@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Root layout: enables scrolling on smaller screens -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,12 +7,13 @@
     android:background="@color/light_blue"
     android:padding="16dp">
 
+    <!-- Container for all components -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
+        <!-- Top Toolbar with centered title and back button -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -21,6 +23,7 @@
             app:title="User Profile"
             app:titleTextColor="@android:color/white">
 
+            <!-- Center-aligned title inside the toolbar -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -38,7 +41,7 @@
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- Profile Image -->
+        <!-- Circular Profile Image Display -->
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +58,8 @@
                 android:clipToOutline="true" />
         </FrameLayout>
 
-        <!-- User Info Fields -->
+        <!-- User Info Fields (read-only in profile view) -->
+        <!-- First Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,6 +72,7 @@
                 android:focusable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Last Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,6 +84,7 @@
                 android:focusable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Date of Birth -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,6 +96,7 @@
                 android:focusable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Email Address -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,6 +109,7 @@
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Password (masked and read-only) -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -115,6 +123,7 @@
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Bio -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -128,6 +137,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Action Buttons -->
+        <!-- Edit Profile Button -->
         <Button
             android:id="@+id/editProfileButton"
             android:layout_width="match_parent"
@@ -137,6 +147,7 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="24dp"/>
 
+        <!-- My Recipes Button -->
         <Button
             android:id="@+id/myRecipesButton"
             android:layout_width="match_parent"
@@ -146,12 +157,13 @@
             android:textColor="@android:color/white"
             android:layout_marginTop="12dp"/>
 
+        <!-- Favorite Recipes Button -->
         <Button
             android:id="@+id/favoriteRecipesButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Favorite Recipes"
-            android:backgroundTint="@color/orange"
+            android:backgroundTint="@color/blue"
             android:textColor="@android:color/white"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="24dp"/>

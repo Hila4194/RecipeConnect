@@ -20,16 +20,19 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MyRecipesFragment : BaseFragment() {
 
+    // UI components
     private lateinit var myRecipesRecyclerView: RecyclerView
     private lateinit var addRecipeButton: Button
     private lateinit var scrollToTopButton: FloatingActionButton
     private lateinit var emptyStateTextView: TextView
     private lateinit var adapter: MyRecipeAdapter
 
+    // Firebase auth + ViewModel
     private val auth = FirebaseAuth.getInstance()
     private val recipeViewModel: RecipeViewModel by viewModels()
     private val myRecipeList = mutableListOf<Recipe>()
 
+    // Inflate layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,20 +40,22 @@ class MyRecipesFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_my_recipes, container, false)
     }
 
+    // Setup toolbar, adapter, observers and interactions
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
+        // Set up toolbar to enable BaseFragment menu (logout icon)
         val toolbar: Toolbar = view.findViewById(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
 
-        // Set the custom navigation icon and title, just like in EditRecipeFragment
+        // Configure navigation and title styling
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back)
         toolbar.setTitleTextColor(resources.getColor(android.R.color.white))
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
+        // Bind views
         myRecipesRecyclerView = view.findViewById(R.id.myRecipesRecyclerView)
         myRecipesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -58,6 +63,7 @@ class MyRecipesFragment : BaseFragment() {
         addRecipeButton = view.findViewById(R.id.addRecipeButton)
         emptyStateTextView = view.findViewById(R.id.emptyStateTextView)
 
+        // Setup adapter with delete/edit/view handlers
         adapter = MyRecipeAdapter(
             emptyList(),
             requireContext(),
@@ -77,6 +83,7 @@ class MyRecipesFragment : BaseFragment() {
         )
         myRecipesRecyclerView.adapter = adapter
 
+        // Filter and observe only the current user's recipes
         val currentUserId = auth.currentUser?.uid
         recipeViewModel.allRecipes.observe(viewLifecycleOwner, Observer { recipes ->
             val myRecipes = recipes.filter { it.userId == currentUserId }
@@ -84,21 +91,25 @@ class MyRecipesFragment : BaseFragment() {
             myRecipeList.addAll(myRecipes)
             adapter.updateRecipes(myRecipeList)
 
+            // Toggle empty state message
             emptyStateTextView.visibility =
                 if (myRecipeList.isEmpty()) View.VISIBLE else View.GONE
         })
 
+        // Navigate to AddRecipeFragment when "+" is clicked
         addRecipeButton.setOnClickListener {
             findNavController().navigate(R.id.addRecipeFragment)
         }
 
+        // Show/hide "scroll to top" button based on scroll direction
         myRecipesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 10) scrollToTopButton.show()
-                else if (dy < -10) scrollToTopButton.hide()
+                if (dy > 10) scrollToTopButton.show() // Scrolling down
+                else if (dy < -10) scrollToTopButton.hide() // Scrolling up
             }
         })
 
+        // Scroll to top smoothly when button clicked
         scrollToTopButton.setOnClickListener {
             myRecipesRecyclerView.smoothScrollToPosition(0)
         }

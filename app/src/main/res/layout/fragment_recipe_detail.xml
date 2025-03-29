@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Fixed Toolbar -->
+    <!-- Toolbar always visible at the top -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         app:titleTextColor="@android:color/white"
         app:layout_collapseMode="none" />
 
-    <!-- Scrollable Content -->
+    <!-- Scrollable section below the toolbar -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Recipe Image -->
+            <!-- Recipe image with rounded corners -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/recipeImageView"
                 android:layout_width="match_parent"
@@ -38,7 +38,7 @@
                 app:shapeAppearanceOverlay="@style/RoundedImage"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Recipe Title -->
+            <!-- Recipe title -->
             <TextView
                 android:id="@+id/recipeTitleTextView"
                 android:layout_width="match_parent"
@@ -50,7 +50,7 @@
                 android:gravity="center"
                 android:layout_marginTop="8dp" />
 
-            <!-- Creator -->
+            <!-- Creator email or name -->
             <TextView
                 android:id="@+id/recipeCreatorTextView"
                 android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp" />
 
-            <!-- Prep Time -->
+            <!-- Prep time label and value -->
             <TextView
                 android:id="@+id/prepTimeLabel"
                 android:layout_width="wrap_content"
@@ -78,7 +78,7 @@
                 android:text="20 minutes"
                 android:layout_marginTop="4dp" />
 
-            <!-- Ingredients -->
+            <!-- Ingredients section -->
             <TextView
                 android:id="@+id/ingredientsLabel"
                 android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
-            <!-- Calories -->
+            <!-- Calorie info from Nutritionix API -->
             <TextView
                 android:id="@+id/caloriesTextView"
                 android:layout_width="match_parent"
@@ -104,6 +104,7 @@
                 android:textColor="@android:color/black"
                 android:paddingTop="8dp" />
 
+            <!-- Loading spinner for calories -->
             <ProgressBar
                 android:id="@+id/caloriesLoadingSpinner"
                 android:layout_width="wrap_content"
@@ -112,6 +113,7 @@
                 android:layout_marginTop="8dp"
                 android:visibility="gone" />
 
+            <!-- Nutritionix attribution text -->
             <TextView
                 android:id="@+id/nutritionixAttributionTextView"
                 android:layout_width="wrap_content"
@@ -121,7 +123,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp" />
 
-            <!-- Steps -->
+            <!-- Steps section -->
             <TextView
                 android:id="@+id/stepsLabel"
                 android:layout_width="wrap_content"
@@ -137,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
-            <!-- Like Button -->
+            <!-- Like button (add/remove favorite) -->
             <ImageButton
                 android:id="@+id/likeIcon"
                 android:layout_width="48dp"

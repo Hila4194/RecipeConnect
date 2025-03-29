@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Toolbar -->
+            <!-- Toolbar with center-aligned title -->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -26,6 +26,7 @@
                 android:background="@color/purple_700"
                 app:navigationIcon="@drawable/baseline_arrow_back">
 
+                <!-- Center title inside the toolbar -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
@@ -43,7 +44,7 @@
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
 
-            <!-- Recipe Image -->
+            <!-- Preview of the recipe image (default shown initially) -->
             <ImageView
                 android:id="@+id/recipeImageView"
                 android:layout_width="match_parent"
@@ -54,7 +55,7 @@
                 android:src="@drawable/default_recipe"
                 android:contentDescription="Recipe Image" />
 
-            <!-- Select Image Button -->
+            <!-- Opens gallery to select an image -->
             <Button
                 android:id="@+id/selectImageButton"
                 android:layout_width="wrap_content"
@@ -63,7 +64,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp" />
 
-            <!-- Recipe Title -->
+            <!-- Recipe Title Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -77,7 +78,7 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Preparation Time -->
+            <!-- Preparation Time Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,7 +92,7 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Difficulty Spinner -->
+            <!-- Difficulty Dropdown -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -104,7 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Category Spinner -->
+            <!-- Category Dropdown -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -117,7 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Ingredients -->
+            <!-- Ingredients Input (comma-separated) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -133,7 +134,7 @@
                     android:maxLines="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Steps -->
+            <!-- Instructions / Steps Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -149,7 +150,7 @@
                     android:maxLines="8" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Save Button -->
+            <!-- Save Recipe Button -->
             <Button
                 android:id="@+id/saveRecipeButton"
                 android:layout_width="match_parent"
@@ -162,7 +163,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Centered Spinner -->
+    <!-- Full-screen loading indicator (shown while saving) -->
     <ProgressBar
         android:id="@+id/saveProgressBar"
         android:layout_width="64dp"

@@ -21,17 +21,21 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class RecipesHomeFragment : Fragment() {
 
+    // UI Components
     private lateinit var recipesRecyclerView: RecyclerView
     private lateinit var difficultySpinner: Spinner
     private lateinit var categorySpinner: Spinner
     private lateinit var scrollToTopButton: FloatingActionButton
     private lateinit var welcomeTextView: TextView
+    private lateinit var noResultsTextView: TextView
     private lateinit var adapter: RecipeAdapter
 
+    // Firebase + ViewModel
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
     private val recipeViewModel: RecipeViewModel by viewModels()
 
+    // Holds all recipes (before filtering)
     private val fullRecipeList = mutableListOf<Recipe>()
 
     override fun onCreateView(
@@ -45,17 +49,21 @@ class RecipesHomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Toolbar setup
         val toolbar = view.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
 
+        // Bind views
         welcomeTextView = view.findViewById(R.id.welcomeTextView)
         recipesRecyclerView = view.findViewById(R.id.recipesRecyclerView)
         difficultySpinner = view.findViewById(R.id.difficultyFilterSpinner)
         categorySpinner = view.findViewById(R.id.categoryFilterSpinner)
         scrollToTopButton = view.findViewById(R.id.scrollToTopButton)
+        noResultsTextView = view.findViewById(R.id.noResultsTextView)
 
         requireActivity().title = "All Recipes"
 
+        // Set welcome text from Firestore
         auth.currentUser?.uid?.let { uid ->
             firestore.collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
@@ -127,7 +135,6 @@ class RecipesHomeFragment : Fragment() {
             recipesRecyclerView.smoothScrollToPosition(0)
         }
 
-        // 🔥 Check and delete recipes by deleted users
         recipeViewModel.getAllRecipeUserIds { userIds ->
             userIds.forEach { uid ->
                 firestore.collection("users").document(uid).get()
@@ -159,6 +166,22 @@ class RecipesHomeFragment : Fragment() {
         }
 
         adapter.updateRecipes(filteredList)
+
+        if (filteredList.isEmpty()) {
+            val message = when {
+                selectedDifficulty != "All" && selectedCategory != "All" ->
+                    "No recipes found for $selectedDifficulty - $selectedCategory"
+                selectedDifficulty != "All" ->
+                    "No $selectedDifficulty recipes found"
+                selectedCategory != "All" ->
+                    "No recipes found in $selectedCategory category"
+                else -> "No recipes available"
+            }
+            noResultsTextView.text = message
+            noResultsTextView.visibility = View.VISIBLE
+        } else {
+            noResultsTextView.visibility = View.GONE
+        }
     }
 
     override fun onResume() {

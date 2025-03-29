@@ -8,7 +8,7 @@
     android:background="@color/light_blue"
     android:padding="24dp">
 
-    <!-- Card container -->
+    <!-- Card container centered vertically and horizontally -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,6 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="16dp">
 
+        <!-- Vertical layout for content inside the card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,7 +29,7 @@
             android:gravity="center_horizontal"
             android:padding="32dp">
 
-            <!-- Logo -->
+            <!-- App Logo -->
             <ImageView
                 android:id="@+id/logoImageView"
                 android:layout_width="260dp"
@@ -38,7 +39,7 @@
                 android:layout_marginBottom="24dp"
                 android:contentDescription="App Logo" />
 
-            <!-- Main description -->
+            <!-- Main welcome text -->
             <TextView
                 android:id="@+id/descriptionTextView"
                 android:layout_width="match_parent"
@@ -51,7 +52,7 @@
                 android:lineSpacingExtra="8dp"
                 android:padding="16dp" />
 
-            <!-- Sub description -->
+            <!-- Secondary motivational text -->
             <TextView
                 android:id="@+id/description2TextView"
                 android:layout_width="match_parent"
@@ -63,7 +64,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="28dp" />
 
-            <!-- Start Button -->
+            <!-- "Start Here" button to navigate to Login screen -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/startButton"
                 android:layout_width="match_parent"

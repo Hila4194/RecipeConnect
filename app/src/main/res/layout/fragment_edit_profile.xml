@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Scrollable container for the edit profile form -->
     <ScrollView
         android:id="@+id/editProfileScrollView"
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Toolbar -->
+            <!-- Top AppBar with center title and back arrow -->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -25,6 +26,7 @@
                 android:background="@color/purple_700"
                 app:navigationIcon="@drawable/baseline_arrow_back">
 
+                <!-- Center title inside toolbar -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
@@ -42,7 +44,7 @@
                 </RelativeLayout>
             </androidx.appcompat.widget.Toolbar>
 
-            <!-- Profile Image -->
+            <!-- Profile Image Preview -->
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,7 +61,7 @@
                     android:contentDescription="Profile Image" />
             </FrameLayout>
 
-            <!-- Change Image Button -->
+            <!-- Button to change profile picture -->
             <Button
                 android:id="@+id/changeProfileImageButton"
                 android:layout_width="wrap_content"
@@ -68,7 +70,7 @@
                 android:text="Change Profile Picture"
                 android:layout_marginTop="12dp" />
 
-            <!-- First Name -->
+            <!-- First Name input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,7 +84,7 @@
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Last Name -->
+            <!-- Last Name input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,7 +98,7 @@
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Bio -->
+            <!-- Bio input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -112,7 +114,7 @@
                     android:maxLines="4" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Save Button -->
+            <!-- Save changes button -->
             <Button
                 android:id="@+id/saveProfileButton"
                 android:layout_width="match_parent"
@@ -125,7 +127,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Spinner overlay -->
+    <!-- Fullscreen loading spinner shown during save -->
     <ProgressBar
         android:id="@+id/editProfileProgressBar"
         android:layout_width="64dp"

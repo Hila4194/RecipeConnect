@@ -26,6 +26,7 @@ import java.io.FileOutputStream
 
 class EditProfileFragment : BaseFragment() {
 
+    // UI elements
     private lateinit var profileImageView: ImageView
     private lateinit var firstNameEditText: EditText
     private lateinit var lastNameEditText: EditText
@@ -33,23 +34,28 @@ class EditProfileFragment : BaseFragment() {
     private lateinit var saveButton: Button
     private var imageUri: Uri? = null
 
+    // Firebase instances
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
+    // Inflate fragment layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_edit_profile, container, false)
 
+    // Setup UI and actions
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup toolbar with back navigation
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
+        // Bind UI elements
         profileImageView = view.findViewById(R.id.editProfileImageView)
         firstNameEditText = view.findViewById(R.id.editFirstName)
         lastNameEditText = view.findViewById(R.id.editLastName)
@@ -57,15 +63,18 @@ class EditProfileFragment : BaseFragment() {
         saveButton = view.findViewById(R.id.saveProfileButton)
         val changeImageButton = view.findViewById<Button>(R.id.changeProfileImageButton)
 
+        // Change profile picture
         changeImageButton.setOnClickListener {
             selectImageFromGallery()
         }
 
+        // Save profile changes
         saveButton.setOnClickListener {
             saveUserProfile()
         }
     }
 
+    // Reload profile picture if it hasn't been changed
     override fun onResume() {
         super.onResume()
         if (imageUri == null) {
@@ -73,9 +82,11 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    // Loads user data from Firestore + profile image from local Room DB
     private fun loadUserProfile() {
         val uid = auth.currentUser?.uid ?: return
 
+        // Fetch user text data (firstName, lastName, bio)
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -88,6 +99,7 @@ class EditProfileFragment : BaseFragment() {
                 Snackbar.make(requireView(), "Failed to load profile", Snackbar.LENGTH_SHORT).show()
             }
 
+        // Load user profile image from internal storage using Room
         lifecycleScope.launch {
             val db = RecipeDatabase.getDatabase(requireContext())
             val userImage = db.userImageDao().get(uid)
@@ -95,10 +107,14 @@ class EditProfileFragment : BaseFragment() {
             if (file != null && file.exists()) {
                 Picasso.get()
                     .load(file)
-                    .transform(CircleTransform())
-                    .memoryPolicy(com.squareup.picasso.MemoryPolicy.NO_CACHE, com.squareup.picasso.MemoryPolicy.NO_STORE)
+                    .transform(CircleTransform()) // Round image
+                    .memoryPolicy(
+                        com.squareup.picasso.MemoryPolicy.NO_CACHE,
+                        com.squareup.picasso.MemoryPolicy.NO_STORE
+                    )
                     .into(profileImageView)
             } else {
+                // Default profile image
                 Picasso.get()
                     .load(R.drawable.default_profile_image)
                     .transform(CircleTransform())
@@ -107,13 +123,14 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    // Saves the profile data and image locally & remotely
     private fun saveUserProfile() {
         val uid = auth.currentUser?.uid ?: return
         val firstName = firstNameEditText.text.toString().trim()
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        // Validation
+        // Validate inputs
         if (firstName.isEmpty() || lastName.isEmpty()) {
             Snackbar.make(requireView(), "First and Last name are required", Snackbar.LENGTH_SHORT).show()
             return
@@ -122,18 +139,21 @@ class EditProfileFragment : BaseFragment() {
         val scrollView = requireView().findViewById<ScrollView>(R.id.editProfileScrollView)
         val progressBar = requireView().findViewById<ProgressBar>(R.id.editProfileProgressBar)
 
+        // Show loading state
         progressBar.visibility = View.VISIBLE
         scrollView.alpha = 0.5f
 
         lifecycleScope.launch {
             val db = RecipeDatabase.getDatabase(requireContext())
 
+            // Save new image locally if changed
             if (imageUri != null) {
                 val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
                 val userImage = UserImage(uid = uid, imagePath = imagePath)
                 db.userImageDao().insert(userImage)
             }
 
+            // Save user text data to Firestore
             val userData = mapOf(
                 "firstName" to firstName,
                 "lastName" to lastName,
@@ -156,6 +176,7 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    // Opens gallery to pick a new profile image
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "image/*"
@@ -163,6 +184,7 @@ class EditProfileFragment : BaseFragment() {
         startActivityForResult(intent, 100)
     }
 
+    // Handles selected image from gallery
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
@@ -173,6 +195,7 @@ class EditProfileFragment : BaseFragment() {
         }
     }
 
+    // Saves selected image to app's internal storage, returns full file path
     private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
         val inputStream = requireContext().contentResolver.openInputStream(uri)
         val file = File(requireContext().filesDir, "$fileName.jpg")

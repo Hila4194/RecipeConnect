@@ -24,9 +24,11 @@ import java.util.*
 
 class EditMyRecipeFragment : BaseFragment() {
 
+    // ViewModel and navigation arguments
     private val recipeViewModel: RecipeViewModel by viewModels()
     private val args: EditMyRecipeFragmentArgs by navArgs()
 
+    // UI components
     private lateinit var recipeImageView: ImageView
     private lateinit var selectImageButton: Button
     private lateinit var recipeTitleEditText: EditText
@@ -37,11 +39,13 @@ class EditMyRecipeFragment : BaseFragment() {
     private lateinit var categorySpinner: Spinner
     private lateinit var saveRecipeButton: Button
 
+    // Auth and data variables
     private val auth = FirebaseAuth.getInstance()
     private var imageUri: Uri? = null
     private var existingImageUrl: String? = null
     private var originalRecipe: Recipe? = null
 
+    // Inflate the layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,16 +53,18 @@ class EditMyRecipeFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_edit_recipe, container, false)
     }
 
+    // Initialize views and load the recipe to edit
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set up custom toolbar with back button
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Initialize views
+        // Initialize all view references
         recipeImageView = view.findViewById(R.id.recipeImageView)
         selectImageButton = view.findViewById(R.id.selectImageButton)
         recipeTitleEditText = view.findViewById(R.id.recipeTitleEditText)
@@ -69,18 +75,19 @@ class EditMyRecipeFragment : BaseFragment() {
         categorySpinner = view.findViewById(R.id.categorySpinner)
         saveRecipeButton = view.findViewById(R.id.saveRecipeButton)
 
-        setupSpinners()
-        loadRecipe()
+        setupSpinners() // Load spinner options
+        loadRecipe()    // Load the current recipe data into the form
 
         selectImageButton.setOnClickListener {
-            selectImageFromGallery()
+            selectImageFromGallery() // Allow user to pick new image
         }
 
         saveRecipeButton.setOnClickListener {
-            updateRecipe()
+            updateRecipe() // Save the updated recipe
         }
     }
 
+    // Populate difficulty and category spinners
     private fun setupSpinners() {
         val difficulties = arrayOf("Easy", "Medium", "Hard")
         val categories = arrayOf("Dairy", "Meat", "Chicken", "Desserts", "Asian", "Italian", "Mexican", "Vegan", "Mediterranean", "Snacks")
@@ -89,6 +96,7 @@ class EditMyRecipeFragment : BaseFragment() {
         categorySpinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
     }
 
+    // Load recipe data from ViewModel by ID and fill the form with it
     private fun loadRecipe() {
         val recipeId = args.recipeId
         recipeViewModel.getRecipeById(recipeId) { recipe ->
@@ -112,10 +120,12 @@ class EditMyRecipeFragment : BaseFragment() {
         }
     }
 
+    // Save the updated recipe back into the database
     private fun updateRecipe() {
         val scrollView = requireView().findViewById<ScrollView>(R.id.editRecipeScrollView)
         val progressBar = requireView().findViewById<ProgressBar>(R.id.editProgressBar)
 
+        // Get updated values
         val title = recipeTitleEditText.text.toString().trim()
         val prepTime = prepTimeEditText.text.toString().trim()
         val ingredients = ingredientsEditText.text.toString().split(",").map { it.trim() }
@@ -123,20 +133,24 @@ class EditMyRecipeFragment : BaseFragment() {
         val difficulty = difficultySpinner.selectedItem.toString()
         val category = categorySpinner.selectedItem.toString()
 
+        // Basic form validation
         if (title.isEmpty() || prepTime.isEmpty() || steps.isEmpty()) {
             Snackbar.make(requireView(), "Please fill in all fields", Snackbar.LENGTH_SHORT).show()
             return
         }
 
+        // UI loading state
         progressBar.visibility = View.VISIBLE
         scrollView.alpha = 0.5f
 
+        // Determine final image path
         val imageUrl = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
         } else if (!existingImageUrl.isNullOrBlank() && File(existingImageUrl!!).exists()) {
             existingImageUrl!!
         } else ""
 
+        // Create updated recipe object
         val updatedRecipe = Recipe(
             id = originalRecipe!!.id,
             title = title,
@@ -149,8 +163,10 @@ class EditMyRecipeFragment : BaseFragment() {
             category = category
         )
 
+        // Save to local DB via ViewModel
         recipeViewModel.insert(updatedRecipe)
 
+        // Reset UI and notify user
         progressBar.visibility = View.GONE
         scrollView.alpha = 1f
 
@@ -158,6 +174,7 @@ class EditMyRecipeFragment : BaseFragment() {
         findNavController().navigateUp()
     }
 
+    // Open gallery picker for new image
     private fun selectImageFromGallery() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "image/*"
@@ -165,6 +182,7 @@ class EditMyRecipeFragment : BaseFragment() {
         startActivityForResult(intent, 101)
     }
 
+    // Handle selected image and display it
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 101 && resultCode == Activity.RESULT_OK) {
@@ -173,6 +191,7 @@ class EditMyRecipeFragment : BaseFragment() {
         }
     }
 
+    // Save selected image to internal storage and return file path
     private fun saveImageToInternalStorage(uri: Uri, fileName: String): String {
         val inputStream = requireContext().contentResolver.openInputStream(uri)
         val file = File(requireContext().filesDir, "$fileName.jpg")

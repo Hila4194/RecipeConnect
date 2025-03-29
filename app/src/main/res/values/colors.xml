@@ -5,6 +5,6 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="red">#D32F2F</color>
-    <color name="orange">#FF9800</color>
-    <color name="teal_700">#00796B</color>
+    <color name="blue">#0A2095</color>
+    <color name="teal_700">#3F2E5D</color>
 </resources>

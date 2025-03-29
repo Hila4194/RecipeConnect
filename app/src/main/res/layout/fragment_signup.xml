@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,7 +7,7 @@
     android:background="@color/light_blue"
     android:padding="16dp">
 
-    <!-- White Card Container -->
+    <!-- Main card that holds the signup form -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/signupCard"
         android:layout_width="0dp"
@@ -22,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Scrollable form container -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -34,7 +34,7 @@
                 android:padding="24dp"
                 android:gravity="center_horizontal">
 
-                <!-- Back Button -->
+                <!-- Back navigation button -->
                 <ImageView
                     android:id="@+id/backButton"
                     android:layout_width="40dp"
@@ -44,7 +44,7 @@
                     android:layout_gravity="start"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Profile Image -->
+                <!-- Circular profile image -->
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profileImageView"
                     android:layout_width="120dp"
@@ -54,9 +54,12 @@
                     app:strokeWidth="2dp"
                     app:shapeAppearanceOverlay="@style/CircleImage"
                     android:layout_marginTop="16dp"
-                    android:contentDescription="Profile image" />
+                    android:contentDescription="Profile image"
+                    android:scaleType="centerCrop"
+                    android:clipToOutline="true"
+                    android:outlineProvider="background" />
 
-                <!-- Change Image Button -->
+                <!-- Open gallery for image selection -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/changeProfileImageButton"
                     android:layout_width="wrap_content"
@@ -67,7 +70,7 @@
                     app:backgroundTint="@color/purple_700"
                     android:textColor="@android:color/white" />
 
-                <!-- Form Fields -->
+                <!-- First name input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -82,6 +85,7 @@
                         android:autofillHints="given-name" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Last name input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -96,6 +100,7 @@
                         android:autofillHints="family-name" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Date of Birth (readonly, opens date picker) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -109,6 +114,7 @@
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Email input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -123,6 +129,7 @@
                         android:autofillHints="emailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Password input with toggle -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -139,7 +146,7 @@
                         android:autofillHints="password" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Password Strength -->
+                <!-- Password strength label -->
                 <TextView
                     android:id="@+id/passwordStrengthText"
                     android:layout_width="wrap_content"
@@ -149,6 +156,7 @@
                     android:textColor="@android:color/black"
                     android:layout_marginTop="4dp" />
 
+                <!-- Strength meter -->
                 <ProgressBar
                     android:id="@+id/passwordStrengthBar"
                     android:layout_width="match_parent"
@@ -158,6 +166,7 @@
                     android:layout_marginBottom="12dp"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
+                <!-- Bio input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -173,7 +182,7 @@
                         android:imeOptions="actionDone" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Submit Button -->
+                <!-- Create account action button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/createAccountButton"
                     android:layout_width="match_parent"
@@ -188,7 +197,7 @@
         </ScrollView>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Spinner -->
+    <!-- Centered loading spinner (used during registration) -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="64dp"

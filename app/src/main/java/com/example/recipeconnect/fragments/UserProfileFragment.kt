@@ -4,8 +4,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.fragment.findNavController
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.recipeconnect.R
 import com.example.recipeconnect.base.BaseFragment
 import com.example.recipeconnect.models.User
@@ -17,10 +18,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 import java.io.File
-import androidx.appcompat.widget.Toolbar
 
 class UserProfileFragment : BaseFragment() {
 
+    // UI Components
     private lateinit var profileImageView: ImageView
     private lateinit var firstNameTextView: EditText
     private lateinit var lastNameTextView: EditText
@@ -31,6 +32,7 @@ class UserProfileFragment : BaseFragment() {
     private lateinit var myRecipesButton: Button
     private lateinit var favoriteRecipesButton: Button
 
+    // Firebase instances
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
@@ -44,13 +46,14 @@ class UserProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
+        // Setup toolbar with back navigation
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
+        // Bind views
         profileImageView = view.findViewById(R.id.profileImageView)
         firstNameTextView = view.findViewById(R.id.firstNameTextView)
         lastNameTextView = view.findViewById(R.id.lastNameTextView)
@@ -61,18 +64,22 @@ class UserProfileFragment : BaseFragment() {
         myRecipesButton = view.findViewById(R.id.myRecipesButton)
         favoriteRecipesButton = view.findViewById(R.id.favoriteRecipesButton)
 
+        // Load user profile info and image
         loadUserProfile()
 
+        // Navigate to edit profile
         editProfileButton.setOnClickListener {
             val action = UserProfileFragmentDirections.actionUserProfileFragmentToEditProfileFragment()
             findNavController().navigate(action)
         }
 
+        // Navigate to My Recipes screen
         myRecipesButton.setOnClickListener {
             val action = UserProfileFragmentDirections.actionUserProfileFragmentToMyRecipesFragment()
             findNavController().navigate(action)
         }
 
+        // Navigate to Favorite Recipes screen
         favoriteRecipesButton.setOnClickListener {
             val action = UserProfileFragmentDirections.actionUserProfileFragmentToFavoriteRecipesFragment()
             findNavController().navigate(action)
@@ -82,6 +89,7 @@ class UserProfileFragment : BaseFragment() {
     private fun loadUserProfile() {
         val uid = auth.currentUser?.uid ?: return
 
+        // Fetch profile info from Firestore
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -99,10 +107,12 @@ class UserProfileFragment : BaseFragment() {
                     .show()
             }
 
+        // Load local profile image from ROOM (Room -> DAO -> internal file)
         lifecycleScope.launch {
             val db = RecipeDatabase.getDatabase(requireContext())
             val userImage = db.userImageDao().get(uid)
             val imageFile = userImage?.imagePath?.let { File(it) }
+
             if (imageFile != null && imageFile.exists()) {
                 Picasso.get()
                     .load(imageFile)
@@ -121,6 +131,7 @@ class UserProfileFragment : BaseFragment() {
         }
     }
 
+    // Ensure profile is always fresh when returning from Edit
     override fun onResume() {
         super.onResume()
         loadUserProfile()
