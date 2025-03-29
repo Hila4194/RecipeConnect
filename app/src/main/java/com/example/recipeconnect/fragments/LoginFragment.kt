@@ -28,6 +28,8 @@ class LoginFragment : Fragment() {
         val passwordEditText = view.findViewById<EditText>(R.id.passwordEditText)
         val loginButton = view.findViewById<ImageView>(R.id.loginButton)
         val signupButton = view.findViewById<Button>(R.id.signupButton)
+        val progressBar = view.findViewById<ProgressBar>(R.id.loginProgressBar)
+        val loginForm = view.findViewById<LinearLayout>(R.id.loginForm)
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -42,12 +44,19 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            progressBar.visibility = View.VISIBLE
+            loginForm.alpha = 0.5f
+
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
+                    progressBar.visibility = View.GONE
+                    loginForm.alpha = 1f
                     Toast.makeText(requireContext(), "Login Successful!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_recipesHomeFragment)
                 }
                 .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    loginForm.alpha = 1f
                     Toast.makeText(requireContext(), "Login Failed: ${it.message}", Toast.LENGTH_SHORT).show()
                 }
         }

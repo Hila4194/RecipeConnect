@@ -45,7 +45,6 @@ class EditProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
@@ -59,14 +58,20 @@ class EditProfileFragment : BaseFragment() {
         saveButton = view.findViewById(R.id.saveProfileButton)
         val changeImageButton = view.findViewById<Button>(R.id.changeProfileImageButton)
 
-        loadUserProfile()
-
         changeImageButton.setOnClickListener {
             selectImageFromGallery()
         }
 
         saveButton.setOnClickListener {
             saveUserProfile()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Only reload profile if no image is being previewed
+        if (imageUri == null) {
+            loadUserProfile()
         }
     }
 
@@ -93,6 +98,7 @@ class EditProfileFragment : BaseFragment() {
                 Picasso.get()
                     .load(file)
                     .transform(CircleTransform())
+                    .memoryPolicy(com.squareup.picasso.MemoryPolicy.NO_CACHE, com.squareup.picasso.MemoryPolicy.NO_STORE)
                     .into(profileImageView)
             } else {
                 Picasso.get()
@@ -109,31 +115,41 @@ class EditProfileFragment : BaseFragment() {
         val lastName = lastNameEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        if (imageUri != null) {
-            val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
-            val userImage = UserImage(uid = uid, imagePath = imagePath)
+        val scrollView = requireView().findViewById<ScrollView>(R.id.editProfileScrollView)
+        val progressBar = requireView().findViewById<ProgressBar>(R.id.editProfileProgressBar)
 
-            lifecycleScope.launch {
-                val db = RecipeDatabase.getDatabase(requireContext())
+        progressBar.visibility = View.VISIBLE
+        scrollView.alpha = 0.5f
+
+        lifecycleScope.launch {
+            val db = RecipeDatabase.getDatabase(requireContext())
+
+            if (imageUri != null) {
+                val imagePath = saveImageToInternalStorage(imageUri!!, "profile_$uid")
+                val userImage = UserImage(uid = uid, imagePath = imagePath)
                 db.userImageDao().insert(userImage)
             }
+
+            val userData = mapOf(
+                "firstName" to firstName,
+                "lastName" to lastName,
+                "bio" to bio
+            )
+
+            firestore.collection("users").document(uid)
+                .set(userData, SetOptions.merge())
+                .addOnSuccessListener {
+                    progressBar.visibility = View.GONE
+                    scrollView.alpha = 1f
+                    Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                }
+                .addOnFailureListener {
+                    progressBar.visibility = View.GONE
+                    scrollView.alpha = 1f
+                    Toast.makeText(requireContext(), "Error saving profile", Toast.LENGTH_SHORT).show()
+                }
         }
-
-        val userData = mapOf(
-            "firstName" to firstName,
-            "lastName" to lastName,
-            "bio" to bio
-        )
-
-        firestore.collection("users").document(uid)
-            .set(userData, SetOptions.merge())
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Error saving profile", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun selectImageFromGallery() {
@@ -147,7 +163,9 @@ class EditProfileFragment : BaseFragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100 && resultCode == Activity.RESULT_OK) {
             imageUri = data?.data
-            profileImageView.setImageURI(imageUri)
+            imageUri?.let {
+                profileImageView.setImageURI(it)
+            }
         }
     }
 

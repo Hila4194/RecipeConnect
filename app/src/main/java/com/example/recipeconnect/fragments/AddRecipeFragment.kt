@@ -45,7 +45,6 @@ class AddRecipeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up toolbar for BaseFragment menu to work (logout icon)
         val toolbar = view.findViewById<Toolbar>(R.id.toolbar)
         (requireActivity() as? AppCompatActivity)?.setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener {
@@ -81,6 +80,9 @@ class AddRecipeFragment : BaseFragment() {
     }
 
     private fun validateAndSaveRecipe() {
+        val scrollView = requireView().findViewById<ScrollView>(R.id.addRecipeScrollView)
+        val progressBar = requireView().findViewById<ProgressBar>(R.id.saveProgressBar)
+
         val title = recipeTitleEditText.text.toString().trim()
         val prepTime = prepTimeEditText.text.toString().trim()
         val difficulty = difficultySpinner.selectedItem.toString()
@@ -94,6 +96,9 @@ class AddRecipeFragment : BaseFragment() {
             Toast.makeText(requireContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show()
             return
         }
+
+        progressBar.visibility = View.VISIBLE
+        scrollView.alpha = 0.5f
 
         val imageUrl = if (imageUri != null) {
             saveImageToInternalStorage(imageUri!!, UUID.randomUUID().toString())
@@ -112,6 +117,10 @@ class AddRecipeFragment : BaseFragment() {
         )
 
         recipeViewModel.insert(recipe)
+
+        progressBar.visibility = View.GONE
+        scrollView.alpha = 1f
+
         Toast.makeText(requireContext(), "Recipe saved!", Toast.LENGTH_SHORT).show()
         findNavController().navigateUp()
     }
